@@ -119,6 +119,8 @@ Here's an example to create a first container, which we'll configure a bit and u
 
     lxcbird:/var/lib/lxc 0-# MIRROR=http://ftp.nl.debian.org/debian lxc-create -t debian -B btrfs -n birdbase -- -r jessie
 
+### Configure the network and openvswitch up/down script
+
 In `birdbase/config`, lxc-create has put some basic configuration. The networking configuration has to be set up now, so we can test our connectivity and install some extra software. To be able to do so, I'm going to configure it with an IPv4 and IPv6 address in the range of vlan10, and point my default gateway to the lxc host system.
 
 In the config file, instead of...
@@ -171,11 +173,15 @@ Instead of setting the container IP address and gateway in the lxc configuration
         down ip addr del 198.51.100.254/24 dev vlan10
         down ip link set down dev vlan10
 
+### Prevent Debian from installing unnecessary packages
+
 Now, before starting it, we need to finish up a few basic configuration settings...
 
     lxcbird:/var/lib/lxc/birdbase 0-# echo 'APT::Install-Recommends "false";' > rootfs/etc/apt/apt.conf.d/00InstallRecommends
 
 I hate the default of installing recommends in Debian, so I always turn that off.
+
+### Start!
 
 Now, let's try to start it and see what happens!
 
@@ -197,10 +203,13 @@ Now, let's try to start it and see what happens!
            valid_lft forever preferred_lft forever
         inet6 fe80::c6ff:fe33:64fe/64 scope link 
            valid_lft forever preferred_lft forever
+
+Let's verify if we have proper outgoing network connectivity!
+
     root@birdbase:/# ping knorrie.org
     bash: ping: command not found
 
-There's our first problem... it's still a bit too basic :)
+Oh, there's our first problem... it's still a bit too basic :)
 
 ## Finishing our birdbase container
 
@@ -232,6 +241,8 @@ The fact that we can do this already proves networking is set up right!
 
 And now ping confirms it. Both IPv4 and IPv6 masquerading works.
 
+### BIRD auto start
+
 Now, enable starting bird, since for some reason this is not automatically done when installing it:
 
     root@birdbase:/# systemctl enable bird
@@ -239,9 +250,15 @@ Now, enable starting bird, since for some reason this is not automatically done 
     Executing /usr/sbin/update-rc.d bird defaults
     Executing /usr/sbin/update-rc.d bird enable
 
+### IP forwarding
+
 For IP forwarding, make sure you uncomment `net.ipv4.ip_forward=1` and `net.ipv6.conf.all.forwarding=1` in sysctl.conf inside the container.
 
+### Root password
+
 You might also want to change the password for root, since it's set to some random string by default.
+
+## Cleanup
 
 Before the birdbase container is ready as a template to be used for cloning other containers, let's remove some container-specific configuration, so we won't accidentally start a new one with duplicate configuration, and, to make the diff look nicer when configuring a clone:
 
