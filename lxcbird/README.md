@@ -95,6 +95,7 @@ Now make sure your `.gitignore` looks like this, to include only very specific f
     */rootfs/*
     !*/rootfs/etc/
     */rootfs/etc/*
+    !*/rootfs/etc/sysctl.conf
 
     !*/rootfs/etc/network/
     */rootfs/etc/network/*
@@ -106,9 +107,6 @@ Now make sure your `.gitignore` looks like this, to include only very specific f
     */rootfs/etc/bird/*
     !*/rootfs/etc/bird/bird.conf
     !*/rootfs/etc/bird/bird6.conf
-
-    !*/rootfs/etc/sysctl.d/
-    */rootfs/etc/sysctl.d/*
     lxcbird:/var/lib/lxc 0-# git add .gitignore
     lxcbird:/var/lib/lxc 0-# git commit -m "Only include specific files from containers"
     [master (root-commit) 8ecfeec] Only include specific files from containers
@@ -243,6 +241,15 @@ Now, enable starting bird, since for some reason this is not automatically done 
 
 For IP forwarding, make sure you uncomment `net.ipv4.ip_forward=1` and `net.ipv6.conf.all.forwarding=1` in sysctl.conf inside the container.
 
+You might also want to change the password for root, since it's set to some random string by default.
+
+Before the birdbase container is ready as a template to be used for cloning other containers, let's remove some container-specific configuration, so we won't accidentally start a new one with duplicate configuration, and, to make the diff look nicer when configuring a clone:
+
+    sed -i /^lxc.network/d birdbase/config
+    /bin/true > birdbase/rootfs/bird/bird.conf
+    /bin/true > birdbase/rootfs/bird/bird6.conf
+    /bin/true > birdbase/rootfs/network/interfaces
+
 Finally, we can check that git only wants to store our bird and network configuration, and do so:
 
     lxcbird:/var/lib/lxc/birdbase 0-# git status
@@ -260,6 +267,7 @@ Finally, we can check that git only wants to store our bird and network configur
       (use "git reset HEAD <file>..." to unstage)
 
         new file:   config
+        new file:   rootfs/etc/sysctl.conf
         new file:   rootfs/etc/bird/bird.conf
         new file:   rootfs/etc/bird/bird6.conf
         new file:   rootfs/etc/network/interfaces
