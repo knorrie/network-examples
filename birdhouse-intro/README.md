@@ -16,7 +16,7 @@ Since the Birdhouse Factory people also like internet technology, they combined 
 
 ## Cloning and configuring new containers
 
-After following the [tutorial to set up a lab environment](lxcbird/README.md) we end up with the first container, "birdbase". Make sure this birdbase container is stopped (by using `lxc-stop`, or typing `halt` on the container prompt after using `lxc-attach`), so it can be cloned into new ones.
+After following the [tutorial to set up a lab environment](/lxcbird/README.md) we end up with the first container, "birdbase". Make sure this birdbase container is stopped (by using `lxc-stop`, or typing `halt` on the container prompt after using `lxc-attach`), so it can be cloned into new ones.
 
     lxcbird:/var/lib/lxc 0-# lxc-ls --fancy
     NAME      STATE    IPV4  IPV6  AUTOSTART
@@ -109,7 +109,7 @@ Start weaver, get a command prompt, and see if you have proper connectivity to t
 
 ## Finishing up... some assignments.
 
-The "ISP Router" functionality can be handled by the LXC host machine, as shown in the [introduction](lxcbird/README.md).
+The "ISP Router" functionality can be handled by the LXC host machine, as shown in the [introduction](/lxcbird/README.md).
 
 To finish this tutorial:
  * Verify how openvswitch is used by looking at the output of `ovs-vsctl show` in the lxc host machine.
