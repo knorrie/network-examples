@@ -8,7 +8,7 @@ The goal is to become comfortable with quickly setting up and tearing down examp
 
 Well, there it is... The Birdhouse Factory network:
 
-
+![Birdhouse Network](/birdhouse-intro/birdhouse-intro.png)
 
 The Birdhouse Factory is a fictional company that manufactures little wooden birdhouses. Besides their manufactoring process and the warehouse, they have an office where accounting and sales people work.
 
