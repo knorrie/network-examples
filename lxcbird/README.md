@@ -73,10 +73,12 @@ To enable masquerading outgoing traffic from the test networks, make sure you en
 
     *nat
     -A POSTROUTING -o eth0 -j MASQUERADE
+    COMMIT
     *filter
     :FORWARD DROP [0:0]
     -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
     -A FORWARD -i vlan10 -o eth0 -j ACCEPT
+    COMMIT
 
 ...which can be done for IPv4, as well as for IPv6, because NAT for IPv6 has finally been implemented. For test environments like this, it's very helpful, since we can just use documentation addresses from `2001:db8::/32` and are still able to access the outside internet if needed.
 
