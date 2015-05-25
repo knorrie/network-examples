@@ -295,3 +295,5 @@ Finally, we can check that git only wants to store our bird and network configur
     [...]
 
 Right! As you might notice, there are "end-hosts" in the drawing on top of this page, and we just configured the base container to start bird and enable IP forwarding. While this is not needed, or wanted for the end host containers, I don't really care, because it will not influence the working of the test environment, as bird has no configuration, end hosts will not attract traffic that's not for themselves. However, if you like, you can create two different containers to clone from, one for a router, and one for an end host.
+
+Let's head over to the next page to [meet the Birdhouse Factory network](/birdhouse-intro/README.md)!

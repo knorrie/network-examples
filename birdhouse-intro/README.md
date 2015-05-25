@@ -116,3 +116,5 @@ To finish this tutorial:
  * Create a third container, the webshop server, and configure it. Confirm you can reach it from weaver, by running a SimpleHTTPServer with python (`python -m SimpleHTTPServer`) and pointing wget to it from weaver. You should see the outside IPv4 address of sparrow as source address of the request because of the NAT. Also, because of the NAT, the webshop server does not need to know a route to the `10.1.60.0/24` network, because it's hidden behind sparrow.
 
 That's basically it. As you can see, when you get the hang of this, it's instantly also getting extremely boring to do the configuration every time. For later tutorials, I'll make sure all files that make up the starting point of the configuration are available to simply copy into the newly cloned containers.
+
+Next up: [Meanwhile at the Birdhouse Factory...](/birdhouse-vlans-vpn/README.md)
