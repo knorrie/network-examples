@@ -2,7 +2,7 @@
 
 ## A larger network
 
-While we were [playing around with linux containers](/birdhouse-intro/README.md), Carl, the Birdhouse Factory syadmin has been busy expanding the computer network at the Birdhouse Factory!
+While we were [playing around with linux containers](/birdhouse-intro/README.md), Carl, the Birdhouse Factory sysadmin has been busy expanding the computer network at the Birdhouse Factory!
 
 ![Birdhouse network with vlans and vpn](/birdhouse-vlans-vpn/birdhouse-vlans-vpn.png)
 
