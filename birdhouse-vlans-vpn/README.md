@@ -36,6 +36,10 @@ Although this is a nice first step, Carl realizes it's not ready yet. Something 
 
 The internal network has been split up, and the various parts of it cannot communicate with each other any more. Using the public network segment to point RFC1918 routes to the other routers is not really an option, since it will result in complex firewall/NAT exceptions, because of the SNAT rules for outgoing traffic, which rewrite the RFC1918 addresses. So, as a best-practice, Carl does not like to mix RFC1918 with public routable addresses on the same vlan, knowing it will cause too many headaches.
 
+## An internal routing vlan
+
+Carl decides to introduce an extra vlan, which is going to be used for exchanging traffic between the routers:
+
 ![Birdhouse network with split routers and internal routing vlan](/birdhouse-vlans-vpn/birdhouse-vlans-vpn-split-routing-vlan.png)
 
 Using this extra vlan, each router can be configured with routes to the rest of the network. This is already much better.
