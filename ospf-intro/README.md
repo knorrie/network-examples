@@ -193,21 +193,22 @@ This is a really basic BIRD configuration:
 
 As you have seen above, all of the routers currently only see their connected subnets. R1 which was used as an example above has no idea how to reach a computer with IP address 10.34.2.5, because it has no available route to a network this address is in:
 
-    root@R6:/# ip r
-    10.0.1.0/24 dev vlan1001  proto kernel  scope link  src 10.0.1.8 
-    10.34.2.0/24 dev vlan1034  proto kernel  scope link  src 10.34.2.1 
+    root@R1:/# ip r
+    10.0.1.0/24 dev vlan1001  proto kernel  scope link  src 10.0.1.5 
+    10.1.2.0/24 dev vlan1012  proto kernel  scope link  src 10.1.2.7 
+    10.3.56.0/24 dev vlan1356  proto kernel  scope link  src 10.3.56.1 
 
 `ip r` shows the Linux kernel route table, which is used to actually forward packets. The BIRD process has its own internal routing table, which can also be shown:
 
-    root@R6:/# birdc show route
+    root@R1:/# birdc show route
     BIRD 1.4.5 ready.
-    root@R6:/# 
+    root@R1:/# 
 
 Well, actually it's still empty now. :-)
 
 birdc is a little program which connects to a running BIRD process for diagnostics and like manupulation of the running protocols, like disabling or enabling them:
 
-    root@R6:/# birdc
+    root@R1:/# birdc
     BIRD 1.4.5 ready.
     bird> show route
     bird> show ?
@@ -223,7 +224,7 @@ birdc is a little program which connects to a running BIRD process for diagnosti
     show symbols ...                               Show all known symbolic names
     bird> show status
     BIRD 1.4.5
-    Router ID is 10.9.99.6
+    Router ID is 10.9.99.1
     Current server time is 2015-06-07 00:51:52
     Last reboot on 2015-06-07 00:02:37
     Last reconfiguration on 2015-06-07 00:43:57
