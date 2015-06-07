@@ -96,8 +96,8 @@ To create the eight containers we need, connected together in different networks
 
  3. Set up the network interfaces in the lxc configuration. This can be done by removing all network related configuration that remains from the cloned birdbase container, and then appending all needed interface configuration by running the fixnetwork.sh script that can be found in `ospf-intro/lxc/` in this git repository. Of course, have a look at the contents of the script first, before executing it.
 
-    sed -i '/lxc.network/d' R*/config H*/config
-    . ./fixnetwork.sh
+        sed -i '/lxc.network/d' R*/config H*/config
+        . ./fixnetwork.sh
 
 Since this example is only using IPv4 and single IP addresses on the interfaces, I simply added them to the lxc configuration instead of the network/interfaces file inside the container.
 
@@ -105,68 +105,68 @@ Since this example is only using IPv4 and single IP addresses on the interfaces,
 
  5. Start all containers
 
-    lxc-start -d -n R1
-    lxc-start -d -n R2
-    lxc-start -d -n R5
-    lxc-start -d -n R6
-    lxc-start -d -n H12
-    lxc-start -d -n H10
-    lxc-start -d -n H8
-    lxc-start -d -n H5
+        lxc-start -d -n R1
+        lxc-start -d -n R2
+        lxc-start -d -n R5
+        lxc-start -d -n R6
+        lxc-start -d -n H12
+        lxc-start -d -n H10
+        lxc-start -d -n H8
+        lxc-start -d -n H5
 
  6. Verify connectivity and look around a bit. Here's an example for R1:
 
-    lxc-attach -n R1
+        lxc-attach -n R1
+        
+        root@R1:/# 
+        root@R1:/# ip a
+        1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default 
+            link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+            inet 127.0.0.1/8 scope host lo
+               valid_lft forever preferred_lft forever
+            inet 10.9.99.1/32 scope global lo
+               valid_lft forever preferred_lft forever
+            inet6 ::1/128 scope host 
+               valid_lft forever preferred_lft forever
+        247: vlan1001: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
+            link/ether 02:00:0a:00:01:05 brd ff:ff:ff:ff:ff:ff
+            inet 10.0.1.5/24 brd 10.0.1.255 scope global vlan1001
+               valid_lft forever preferred_lft forever
+            inet6 fe80::aff:fe00:105/64 scope link 
+               valid_lft forever preferred_lft forever
+        249: vlan1012: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
+            link/ether 02:00:0a:01:02:07 brd ff:ff:ff:ff:ff:ff
+            inet 10.1.2.7/24 brd 10.1.2.255 scope global vlan1012
+               valid_lft forever preferred_lft forever
+            inet6 fe80::aff:fe01:207/64 scope link 
+               valid_lft forever preferred_lft forever
+        251: vlan1356: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
+            link/ether 02:00:0a:03:38:01 brd ff:ff:ff:ff:ff:ff
+            inet 10.3.56.1/24 brd 10.3.56.255 scope global vlan1356
+               valid_lft forever preferred_lft forever
+            inet6 fe80::aff:fe03:3801/64 scope link 
+               valid_lft forever preferred_lft forever
+        
+        root@R1:/# ip r
+        10.0.1.0/24 dev vlan1001  proto kernel  scope link  src 10.0.1.5 
+        10.1.2.0/24 dev vlan1012  proto kernel  scope link  src 10.1.2.7 
+        10.3.56.0/24 dev vlan1356  proto kernel  scope link  src 10.3.56.1 
+        
+        root@R1:/# ping -c 3 10.3.56.8
+        PING 10.3.56.8 (10.3.56.8) 56(84) bytes of data.
+        64 bytes from 10.3.56.8: icmp_seq=1 ttl=64 time=0.545 ms
+        64 bytes from 10.3.56.8: icmp_seq=2 ttl=64 time=0.084 ms
+        64 bytes from 10.3.56.8: icmp_seq=3 ttl=64 time=0.078 ms
+        
+        --- 10.3.56.8 ping statistics ---
+        3 packets transmitted, 3 received, 0% packet loss, time 1998ms
+        rtt min/avg/max/mdev = 0.078/0.235/0.545/0.219 ms
+        root@R1:/# 
+        
+        root@R1:/# traceroute 10.34.2.5
+        traceroute to 10.34.2.5 (10.34.2.5), 30 hops max, 60 byte packets
+        connect: Network is unreachable
     
-    root@R1:/# 
-    root@R1:/# ip a
-    1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default 
-        link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-        inet 127.0.0.1/8 scope host lo
-           valid_lft forever preferred_lft forever
-        inet 10.9.99.1/32 scope global lo
-           valid_lft forever preferred_lft forever
-        inet6 ::1/128 scope host 
-           valid_lft forever preferred_lft forever
-    247: vlan1001: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
-        link/ether 02:00:0a:00:01:05 brd ff:ff:ff:ff:ff:ff
-        inet 10.0.1.5/24 brd 10.0.1.255 scope global vlan1001
-           valid_lft forever preferred_lft forever
-        inet6 fe80::aff:fe00:105/64 scope link 
-           valid_lft forever preferred_lft forever
-    249: vlan1012: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
-        link/ether 02:00:0a:01:02:07 brd ff:ff:ff:ff:ff:ff
-        inet 10.1.2.7/24 brd 10.1.2.255 scope global vlan1012
-           valid_lft forever preferred_lft forever
-        inet6 fe80::aff:fe01:207/64 scope link 
-           valid_lft forever preferred_lft forever
-    251: vlan1356: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
-        link/ether 02:00:0a:03:38:01 brd ff:ff:ff:ff:ff:ff
-        inet 10.3.56.1/24 brd 10.3.56.255 scope global vlan1356
-           valid_lft forever preferred_lft forever
-        inet6 fe80::aff:fe03:3801/64 scope link 
-           valid_lft forever preferred_lft forever
-    
-    root@R1:/# ip r
-    10.0.1.0/24 dev vlan1001  proto kernel  scope link  src 10.0.1.5 
-    10.1.2.0/24 dev vlan1012  proto kernel  scope link  src 10.1.2.7 
-    10.3.56.0/24 dev vlan1356  proto kernel  scope link  src 10.3.56.1 
-    
-    root@R1:/# ping -c 3 10.3.56.8
-    PING 10.3.56.8 (10.3.56.8) 56(84) bytes of data.
-    64 bytes from 10.3.56.8: icmp_seq=1 ttl=64 time=0.545 ms
-    64 bytes from 10.3.56.8: icmp_seq=2 ttl=64 time=0.084 ms
-    64 bytes from 10.3.56.8: icmp_seq=3 ttl=64 time=0.078 ms
-    
-    --- 10.3.56.8 ping statistics ---
-    3 packets transmitted, 3 received, 0% packet loss, time 1998ms
-    rtt min/avg/max/mdev = 0.078/0.235/0.545/0.219 ms
-    root@R1:/# 
-    
-    root@R1:/# traceroute 10.34.2.5
-    traceroute to 10.34.2.5 (10.34.2.5), 30 hops max, 60 byte packets
-    connect: Network is unreachable
-
 Looking good! :-) Feel free to test some more and by attaching to the console of containers and playing around.
 
 ## Basic BIRD configuration
