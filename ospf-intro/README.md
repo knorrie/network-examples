@@ -85,14 +85,14 @@ To create the eight containers we need, connected together in different networks
  1. Clone this git repository somewhere to be able to use some files from the ospf-intro/lxc/ directory inside.
  2. lxc-clone the birdbase container several times:
 
-    lxc-clone -s birdbase R1
-    lxc-clone -s birdbase R2
-    lxc-clone -s birdbase R5
-    lxc-clone -s birdbase R6
-    lxc-clone -s birdbase H12
-    lxc-clone -s birdbase H10
-    lxc-clone -s birdbase H8
-    lxc-clone -s birdbase H5
+        lxc-clone -s birdbase R1
+        lxc-clone -s birdbase R2
+        lxc-clone -s birdbase R5
+        lxc-clone -s birdbase R6
+        lxc-clone -s birdbase H12
+        lxc-clone -s birdbase H10
+        lxc-clone -s birdbase H8
+        lxc-clone -s birdbase H5
 
  3. Set up the network interfaces in the lxc configuration. This can be done by removing all network related configuration that remains from the cloned birdbase container, and then appending all needed interface configuration by running the fixnetwork.sh script that can be found in `ospf-intro/lxc/` in this git repository. Of course, have a look at the contents of the script first, before executing it.
 
