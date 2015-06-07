@@ -94,12 +94,10 @@ To create the eight containers we need, connected together in different networks
         lxc-clone -s birdbase H8
         lxc-clone -s birdbase H5
 
- 3. Set up the network interfaces in the lxc configuration. This can be done by removing all network related configuration that remains from the cloned birdbase container, and then appending all needed interface configuration by running the fixnetwork.sh script that can be found in `ospf-intro/lxc/` in this git repository. Of course, have a look at the contents of the script first, before executing it.
+ 3. Set up the network interfaces in the lxc configuration. This can be done by removing all network related configuration that remains from the cloned birdbase container, and then appending all needed interface configuration by running the fixnetwork.sh script that can be found in `ospf-intro/lxc/` in this git repository. Of course, have a look at the contents of the script first, before executing it. Since this example is only using IPv4 and single IP addresses on the interfaces, I simply added them to the lxc configuration instead of the network/interfaces file inside the container.
 
         sed -i '/lxc.network/d' R*/config H*/config
         . ./fixnetwork.sh
-
-Since this example is only using IPv4 and single IP addresses on the interfaces, I simply added them to the lxc configuration instead of the network/interfaces file inside the container.
 
  4. Copy extra configuration into the containers. The ospf-intro/lxc/ directory inside this git repository contains a little file hierarchy that can just be copied over the configuration of the containers. For each router, it's a network/interfaces configuration file which adds an IP address that corresponds with the Router ID to the loopback interface, and a simple BIRD configuration file that serves as a starting point for our next steps.
 
@@ -352,6 +350,8 @@ Here's mine:
 When I disabled the interface on R5, BIRD on R5 got notified by netlink that the interface went down. OSPF on R5 had to change its information card immediately and send it out again. But... it was only able to send it out on the 10.0.1.0/24 network. So it did, and R1 and R6 received it. Since R1 had not seen an update on the lower side of the network, it notified routers in there of the change and R2 was able to recalculate the shortest paths to the entire network after changing its view of the complete network topology with the missing link between R5 and the 10.1.2.0/24 network. After doing so, R2 determined that the current open shortest path to 10.34.2.5 had to be via 10.1.2.7 and used the BIRD kernel protocol to retract the route to 10.34.2.0/24 via 10.1.2.56 and inserted a new route into the Linux kernel routing table which points to 10.1.2.7 as next hop for 10.34.2.0/24. And then, mtr noticed there was a change in the path.
 
 Apparently, I lost a ping while the network was busy to get into a stable converged state again. ;-(
+
+The second thing I want to point out is about the /32 addresses on the loopback interfaces of the routers. I figure you might be wondering what they're useful for. Well, normally, a /32 address on a network interface would not make much sense. But image what happens when we include it in our OSPF process... It suddenly becomes a network subnet whose reachibility information is propagated throughout the whole network. Ok, this subnet can only contain a single address, but it's a perfect way to make sure that if any path exists to this single router in the network, OSPF will make you able to use it to connect to the router. So, if I'm the network administrator of the example network we've just built, and `10.50.1.12` is my workstation, I can use `10.9.9.5` to connect to, for example with SSH, to manage this router. Een when I accidentally would disable the link to the `10.1.2.0/24` network, my SSH session would simply stay active, the traffic to and from R5 being rerouted via R1 back to my workstation... :-D Later on, in the BGP tutorial we'll see that there are actually other routing protocols that rely on this mechanism to function correctly.
 
 ## Next...
 
