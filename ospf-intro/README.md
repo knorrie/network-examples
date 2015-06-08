@@ -300,7 +300,7 @@ The inevitable must happen. Right now, you should know enough to be able to conf
 
 Go ahead, do it, now!
 
-After adding the configuration and making BIRD reload it, `birdc show protocols` should show an active OSPF protocol. Now, just wait for a few seconds and do `ip r` again on R6:
+After adding the configuration and making BIRD reload it, `birdc show protocols` should show an active OSPF protocol. Now, just wait for a few seconds and do `ip r` again on R6, which shows us the routing table that is actually used by the forwarding process:
 
     root@R6:/# ip r
     10.0.1.0/24 dev vlan1001  proto kernel  scope link  src 10.0.1.8 
@@ -308,6 +308,16 @@ After adding the configuration and making BIRD reload it, `birdc show protocols`
     10.3.56.0/24 via 10.0.1.5 dev vlan1001  proto bird 
     10.9.99.1 via 10.0.1.5 dev vlan1001  proto bird 
     10.34.2.0/24 dev vlan1034  proto kernel  scope link  src 10.34.2.1 
+
+In the interactive BIRD console, `show route` can be used to see the view that BIRD has on the network. You can see that the three routes that have nexthop `10.0.1.5` were learned from router `10.9.99.1`, which is the Router ID of R1.
+
+    bird> show route
+    10.0.1.0/24        dev vlan1001 [ospf1 2015-06-07] * I (150/10) [10.9.99.6]
+    10.1.2.0/24        via 10.0.1.5 on vlan1001 [ospf1 22:51:52] * I (150/20) [10.9.99.1]
+    10.3.56.0/24       via 10.0.1.5 on vlan1001 [ospf1 2015-06-07] * I (150/20) [10.9.99.1]
+    10.9.99.1/32       via 10.0.1.5 on vlan1001 [ospf1 2015-06-07] * I (150/10) [10.9.99.1]
+    10.9.99.6/32       dev lo [ospf1 2015-06-07] * I (150/0) [10.9.99.6]
+    10.34.2.0/24       dev vlan1034 [ospf1 2015-06-07] * I (150/10) [10.9.99.6]
 
 I guess it's not very useful any more to continue typing much more text in this tutorial page now, because I'm quite surely losing your attention. :-D Just go ahead, and configure OSPF on the other two routers and see what happens. One fun thing to do is to start a `watch ip r` on R6 and see live changes of what will happen while you're working on the other routers.
 
