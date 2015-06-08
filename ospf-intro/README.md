@@ -333,7 +333,7 @@ Or...
 
 There's two more topics I want to cover before ending this tutorial. The first one is how the network will handle changes in the availability of paths.
 
-Attach to H12 and start an `mtr -n 10.34.2.5`. In my case here, it shows a path via `10.50.1.1` (R2), `10.1.2.56` (R5) and `10.0.1.8` (R6). Now, just for fun, do an `ip link set down vlan1012` on R5 if your traceroute shows the same path, or if the route is over R1, just down an interface on R2 instead, and look what's happening to your running mtr output. Doing this is equivalent to pulling a network cable out of a network port of a "real" router.
+Attach to H12 and start an `mtr -n 10.34.2.5`. In my case here, it shows a path via `10.50.1.1` (R2), `10.1.2.56` (R5) and `10.0.1.8` (R6). Now, just for fun, do an `ip link set down vlan1012` on R5 if your traceroute shows the same path, or if the route is over R1, just down an interface on R1 instead, and look what's happening to your running mtr output. Doing this is equivalent to pulling a network cable out of a network port of a "real" router.
 
 Here's mine:
 
