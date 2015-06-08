@@ -16,8 +16,8 @@ This page will contain a nice high level story, pointing to parts of the tutoria
  * [An introduction to OSPF](/ospf-intro/README.md) explains the basics of using OSPF as an IGP.
  * [An introduction to BGP](/bgp-intro/README.md) shows using BGP to make a connection to an external network that is managed by someone else. Also shows how the routes learned are propagated into the local network, having OSPF and iBGP work together.
  * [A bigger BGP network](/bgp-contd/README.md) shows redundant routes, asymmetric traffic flow and explains the difference between "peering" and "transit".
- * [Enabling OSPF and BGP in the Birdhouse internal network](/birdhouse-internal-routing/README.md) is a tutorial that will repeat the lessons learned about OSPF and BGP. The reader will be configuring routers in the Birdhouse network, to eliminate the mess of maintaining static routes all over the place.
  * [Wait what... The Internet](/routing-on-the-internet/README.md) shows that with the little amount of knowledge we built up about routing, we can suddenly understand how the whole Internet works! (So, fun with traceroute, bgp.he.net, etc...)
+ * [Enabling OSPF and BGP in the Birdhouse internal network](/birdhouse-internal-routing/README.md) is a tutorial that will repeat the lessons learned about OSPF and BGP. The reader will be configuring routers in the Birdhouse network, to eliminate the mess of maintaining static routes all over the place.
 
 ## IPv6
 
