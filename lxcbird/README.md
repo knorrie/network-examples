@@ -252,6 +252,13 @@ Now, enable starting bird, since for some reason this is not automatically done 
     Executing /usr/sbin/update-rc.d bird defaults
     Executing /usr/sbin/update-rc.d bird enable
 
+### BIRD logfile location
+
+Since there is no separate syslog process in the container, create a directory where we can point logging configuration to later:
+
+    root@birdbase:/# mkdir /var/log/bird
+    root@birdbase:/# chown bird: /var/log/bird
+
 ### IP forwarding
 
 For IP forwarding, make sure you uncomment `net.ipv4.ip_forward=1` and `net.ipv6.conf.all.forwarding=1` in sysctl.conf inside the container.
