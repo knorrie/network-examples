@@ -3,7 +3,9 @@ BGP
 
 Blablabla, work in progress here.
 
-The next routing protocol to get some attention would be BGP.
+In the [previous tutorial, we discovered how to let OSPF dynamically configure routing](/ospf-intro/README.md) in a network.
+
+This tutorial provides an introduction to another routing protocol, which is BGP, the Border Gateway Protocol.
 
 BGP is not an alternative to OSPF. It's used for different things.
 
@@ -13,23 +15,33 @@ To start off quickly, here's the bare essentials:
 
 When routers talk BGP to each other, they just claim that some network ranges are reachable via them. Voila.
 
-## OSPF vs. BGP
-
 Ok, a bit less simplified:
 
 ![BGP network, less simplified](/bgp-intro/bgp-hey2.png)
 
- * OSPF: routes in the network are originated by putting ip addresses on a network interface of a router, not manually defined. These are addresses and subnets that are actually in use.
- * BGP: publish "umbrella" ranges, there is no actual proof that the addresses are actually in use.
-
-So, OSPF is a network in detail, and BGP can connect that network to a network of another external someone, just telling them your aggregated ranges. Other end does not have any knowledge about the internal topology of your network, and changes in there do not result in updates to external networks.
-
  * Between routers: small subnet, like an IPv4 /30 or /31, which only contains the two routers.
  * Often direct links, in this bird/openvswitch tutorial just use a vlan
  * A complete network under control of somebody has an AS number, an Autonomous System
- * Where OSPF shortest path deals with knowledge about all separate routers, paths and weights, BGP just looks on a higher level, the shortest path, considering a complete network being a step.
+
+## OSPF vs. BGP
+
+While the title of this section might seem logical, since we're considering BGP after just having spent quite some time on OSPF, it's actually a non-issue. OSPF and BGP are two very different routing protocols, which are used to get different things done.
+
+OSPF:
+ * routes in the network are originated by putting ip addresses on a network interface of a router, not manually defined
+ * these are addresses and subnets that are actually in use
+ * every router has a full detailed view on the network using link state updates that are broadcasted over the network
+
+BGP:
+ * only publish "umbrella" ranges, not much detail
+ * there is no actual proof that the addresses are actually in use.
+ * routers know that some prefix is reachable via another network, but where OSPF shortest path deals with knowledge about all separate routers, paths and weights, BGP just looks on a higher level, the shortest path, considering a complete network being one step.
+
+So, OSPF is an IGP (Interior Gateway Protocol) and BGP is an EGP (Exterior Gateway Protocol). BGP can connect OSPF networks to each other, hiding a lot of detail inside them.
 
 ![BGP network, three ASses](/bgp-intro/bgp-hey3.png)
+
+R2 tells R3 that it may send traffic for `10.2.0.0/16` and `10.1.0.0/16` to it. It also provides an AS-path with each route. The route `10.2.0.0/16` only has `65002` as AS-path, so R3 knows that this route originates from `AS65002`. The route `10.1.0.0/16` has an AS-path of `65002,65001`, so R3 will learn that this route actually originates from `AS65001`, and apparently `AS65002` wants to relay traffic to it through its own network.
 
 But, later. First of all, do it with bird, build full example.
 
