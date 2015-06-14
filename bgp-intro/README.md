@@ -48,105 +48,105 @@ It's starting to look serious now! Thankfully, most of the configuration is prov
  1. Clone this git repository somewhere to be able to use some files from the bgp-intro/lxc/ directory inside.
  2. lxc-clone the birdbase container several times:
 
-    lxc-clone -s birdbase R0
-    lxc-clone -s birdbase R1
-    lxc-clone -s birdbase R3
-    lxc-clone -s birdbase R10
-    lxc-clone -s birdbase R11
-    lxc-clone -s birdbase R12
-    lxc-clone -s birdbase H6
-    lxc-clone -s birdbase H7
-    lxc-clone -s birdbase H19
-    lxc-clone -s birdbase H34
+        lxc-clone -s birdbase R0
+        lxc-clone -s birdbase R1
+        lxc-clone -s birdbase R3
+        lxc-clone -s birdbase R10
+        lxc-clone -s birdbase R11
+        lxc-clone -s birdbase R12
+        lxc-clone -s birdbase H6
+        lxc-clone -s birdbase H7
+        lxc-clone -s birdbase H19
+        lxc-clone -s birdbase H34
 
  3. Set up the network interfaces in the lxc configuration. This can be done by removing all network related configuration that remains from the cloned birdbase container, and then appending all needed interface configuration by running the fixnetwork.sh script that can be found in `ospf-intro/lxc/` in this git repository. Of course, have a look at the contents of the script first, before executing it. Since this example is only using IPv4 and single IP addresses on the interfaces, I simply added them to the lxc configuration instead of the network/interfaces file inside the container.
 
-    . ./fixnetwork.sh
+        . ./fixnetwork.sh
 
  4. Copy extra configuration into the containers. The bgp-intro/lxc/ directory inside this git repository contains a little file hierarchy that can just be copied over the configuration of the containers. For each router, it's a network/interfaces configuration file which adds an IP address that corresponds with the Router ID to the loopback interface, and a simple BIRD configuration file that serves as a starting point for our next steps.
 
  5. Start all containers
 
-    lxc-start -d -n R0
-    lxc-start -d -n R1
-    lxc-start -d -n R3
-    lxc-start -d -n R10
-    lxc-start -d -n R11
-    lxc-start -d -n R12
-    lxc-start -d -n H6
-    lxc-start -d -n H7
-    lxc-start -d -n H19
-    lxc-start -d -n H34
+        lxc-start -d -n R0
+        lxc-start -d -n R1
+        lxc-start -d -n R3
+        lxc-start -d -n R10
+        lxc-start -d -n R11
+        lxc-start -d -n R12
+        lxc-start -d -n H6
+        lxc-start -d -n H7
+        lxc-start -d -n H19
+        lxc-start -d -n H34
 
  6. Verify connectivity and look around a bit. Here's an example for R1:
 
-    lxc-attach -n R1
-    
-    root@R1:/# ip a
-    1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default 
-        link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-        inet 127.0.0.1/8 scope host lo
-           valid_lft forever preferred_lft forever
-        inet 10.40.217.1/32 scope global lo
-           valid_lft forever preferred_lft forever
-        inet6 2001:db8:40::1/128 scope global 
-           valid_lft forever preferred_lft forever
-        inet6 ::1/128 scope host 
-           valid_lft forever preferred_lft forever
-    109: vlan216: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
-        link/ether 02:00:0a:28:d8:03 brd ff:ff:ff:ff:ff:ff
-        inet 10.40.216.3/28 brd 10.40.216.15 scope global vlan216
-           valid_lft forever preferred_lft forever
-        inet6 2001:db8:40:d8::3/120 scope global 
-           valid_lft forever preferred_lft forever
-        inet6 fe80::aff:fe28:d803/64 scope link 
-           valid_lft forever preferred_lft forever
-    111: vlan3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
-        link/ether 02:00:0a:28:03:01 brd ff:ff:ff:ff:ff:ff
-        inet 10.40.3.1/24 brd 10.40.3.255 scope global vlan3
-           valid_lft forever preferred_lft forever
-        inet6 2001:db8:40:3::1/120 scope global 
-           valid_lft forever preferred_lft forever
-        inet6 fe80::aff:fe28:301/64 scope link 
-           valid_lft forever preferred_lft forever
-    
-    root@R1:/# ip r
-    10.40.2.0/24 via 10.40.216.2 dev vlan216  proto bird 
-    10.40.3.0/24 dev vlan3  proto kernel  scope link  src 10.40.3.1 
-    10.40.216.0/28 dev vlan216  proto kernel  scope link  src 10.40.216.3 
-    10.40.217.0 via 10.40.216.2 dev vlan216  proto bird 
-    10.40.217.3 via 10.40.216.1 dev vlan216  proto bird 
-    10.40.217.16/30 via 10.40.216.1 dev vlan216  proto bird 
-    
-    root@R1:/# birdc show route
-    BIRD 1.4.5 ready.
-    10.40.217.16/30    via 10.40.216.1 on vlan216 [ospf1 22:58:02] * I (150/20) [10.40.217.3]
-    10.40.216.0/28     dev vlan216 [ospf1 22:58:02] * I (150/10) [10.40.217.3]
-    10.40.217.0/32     via 10.40.216.2 on vlan216 [ospf1 22:58:02] * I (150/10) [10.40.217.0]
-    10.40.217.1/32     dev lo [ospf1 22:57:42] * I (150/0) [10.40.217.1]
-    10.40.217.3/32     via 10.40.216.1 on vlan216 [ospf1 22:58:02] * I (150/10) [10.40.217.3]
-    10.40.2.0/24       via 10.40.216.2 on vlan216 [ospf1 22:58:02] * I (150/20) [10.40.217.0]
-    10.40.3.0/24       dev vlan3 [ospf1 22:57:42] * I (150/10) [10.40.217.1]
-    
-    root@R1:/# ip -6 r
-    2001:db8:40:: via fe80::aff:fe28:d802 dev vlan216  proto bird  metric 1024 
-    unreachable 2001:db8:40::1 dev lo  proto kernel  metric 256  error -101
-    2001:db8:40::3 via fe80::aff:fe28:d801 dev vlan216  proto bird  metric 1024 
-    2001:db8:40:2::/120 via fe80::aff:fe28:d802 dev vlan216  proto bird  metric 1024 
-    2001:db8:40:3::/120 dev vlan3  proto kernel  metric 256 
-    2001:db8:40:d8::/120 dev vlan216  proto kernel  metric 256 
-    2001:db8:40:d910::/120 via fe80::aff:fe28:d801 dev vlan216  proto bird  metric 1024 
-    fe80::/64 dev vlan216  proto kernel  metric 256 
-    fe80::/64 dev vlan3  proto kernel  metric 256 
-    
-    root@R1:/# birdc6 show route
-    BIRD 1.4.5 ready.
-    2001:db8:40:d8::/120 dev vlan216 [ospf1 22:58:08] * I (150/10) [10.40.217.3]
-    2001:db8:40::/128  via fe80::aff:fe28:d802 on vlan216 [ospf1 22:58:08] * I (150/20) [10.40.217.0]
-    2001:db8:40:2::/120 via fe80::aff:fe28:d802 on vlan216 [ospf1 22:58:08] * I (150/20) [10.40.217.0]
-    2001:db8:40:3::/120 dev vlan3 [ospf1 22:57:41] * I (150/10) [10.40.217.1]
-    2001:db8:40::3/128 via fe80::aff:fe28:d801 on vlan216 [ospf1 22:58:08] * I (150/20) [10.40.217.3]
-    2001:db8:40:d910::/120 via fe80::aff:fe28:d801 on vlan216 [ospf1 22:58:08] * I (150/20) [10.40.217.3]
+        lxc-attach -n R1
+        
+        root@R1:/# ip a
+        1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default 
+            link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+            inet 127.0.0.1/8 scope host lo
+               valid_lft forever preferred_lft forever
+            inet 10.40.217.1/32 scope global lo
+               valid_lft forever preferred_lft forever
+            inet6 2001:db8:40::1/128 scope global 
+               valid_lft forever preferred_lft forever
+            inet6 ::1/128 scope host 
+               valid_lft forever preferred_lft forever
+        109: vlan216: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
+            link/ether 02:00:0a:28:d8:03 brd ff:ff:ff:ff:ff:ff
+            inet 10.40.216.3/28 brd 10.40.216.15 scope global vlan216
+               valid_lft forever preferred_lft forever
+            inet6 2001:db8:40:d8::3/120 scope global 
+               valid_lft forever preferred_lft forever
+            inet6 fe80::aff:fe28:d803/64 scope link 
+               valid_lft forever preferred_lft forever
+        111: vlan3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
+            link/ether 02:00:0a:28:03:01 brd ff:ff:ff:ff:ff:ff
+            inet 10.40.3.1/24 brd 10.40.3.255 scope global vlan3
+               valid_lft forever preferred_lft forever
+            inet6 2001:db8:40:3::1/120 scope global 
+               valid_lft forever preferred_lft forever
+            inet6 fe80::aff:fe28:301/64 scope link 
+               valid_lft forever preferred_lft forever
+        
+        root@R1:/# ip r
+        10.40.2.0/24 via 10.40.216.2 dev vlan216  proto bird 
+        10.40.3.0/24 dev vlan3  proto kernel  scope link  src 10.40.3.1 
+        10.40.216.0/28 dev vlan216  proto kernel  scope link  src 10.40.216.3 
+        10.40.217.0 via 10.40.216.2 dev vlan216  proto bird 
+        10.40.217.3 via 10.40.216.1 dev vlan216  proto bird 
+        10.40.217.16/30 via 10.40.216.1 dev vlan216  proto bird 
+        
+        root@R1:/# birdc show route
+        BIRD 1.4.5 ready.
+        10.40.217.16/30    via 10.40.216.1 on vlan216 [ospf1 22:58:02] * I (150/20) [10.40.217.3]
+        10.40.216.0/28     dev vlan216 [ospf1 22:58:02] * I (150/10) [10.40.217.3]
+        10.40.217.0/32     via 10.40.216.2 on vlan216 [ospf1 22:58:02] * I (150/10) [10.40.217.0]
+        10.40.217.1/32     dev lo [ospf1 22:57:42] * I (150/0) [10.40.217.1]
+        10.40.217.3/32     via 10.40.216.1 on vlan216 [ospf1 22:58:02] * I (150/10) [10.40.217.3]
+        10.40.2.0/24       via 10.40.216.2 on vlan216 [ospf1 22:58:02] * I (150/20) [10.40.217.0]
+        10.40.3.0/24       dev vlan3 [ospf1 22:57:42] * I (150/10) [10.40.217.1]
+        
+        root@R1:/# ip -6 r
+        2001:db8:40:: via fe80::aff:fe28:d802 dev vlan216  proto bird  metric 1024 
+        unreachable 2001:db8:40::1 dev lo  proto kernel  metric 256  error -101
+        2001:db8:40::3 via fe80::aff:fe28:d801 dev vlan216  proto bird  metric 1024 
+        2001:db8:40:2::/120 via fe80::aff:fe28:d802 dev vlan216  proto bird  metric 1024 
+        2001:db8:40:3::/120 dev vlan3  proto kernel  metric 256 
+        2001:db8:40:d8::/120 dev vlan216  proto kernel  metric 256 
+        2001:db8:40:d910::/120 via fe80::aff:fe28:d801 dev vlan216  proto bird  metric 1024 
+        fe80::/64 dev vlan216  proto kernel  metric 256 
+        fe80::/64 dev vlan3  proto kernel  metric 256 
+        
+        root@R1:/# birdc6 show route
+        BIRD 1.4.5 ready.
+        2001:db8:40:d8::/120 dev vlan216 [ospf1 22:58:08] * I (150/10) [10.40.217.3]
+        2001:db8:40::/128  via fe80::aff:fe28:d802 on vlan216 [ospf1 22:58:08] * I (150/20) [10.40.217.0]
+        2001:db8:40:2::/120 via fe80::aff:fe28:d802 on vlan216 [ospf1 22:58:08] * I (150/20) [10.40.217.0]
+        2001:db8:40:3::/120 dev vlan3 [ospf1 22:57:41] * I (150/10) [10.40.217.1]
+        2001:db8:40::3/128 via fe80::aff:fe28:d801 on vlan216 [ospf1 22:58:08] * I (150/20) [10.40.217.3]
+        2001:db8:40:d910::/120 via fe80::aff:fe28:d801 on vlan216 [ospf1 22:58:08] * I (150/20) [10.40.217.3]
 
 As you can see, OSPF is running for IPv4 and IPv6, and has discovered the complete internal network of AS64080.
 
