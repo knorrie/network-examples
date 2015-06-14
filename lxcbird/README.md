@@ -137,6 +137,7 @@ In the config file, instead of...
     lxc.network.flags = up
     lxc.network.hwaddr = 02:00:c6:33:64:fe
     lxc.network.script.up = /etc/lxc/lxc-openvswitch
+    lxc.network.script.down = /etc/lxc/lxc-openvswitch
 
 ...oh, and by the way, the lxc network script referenced is a really simple script to integrate lxc with openvswitch, which simply attaches an interface in the container to a vlan inside openvswitch based on the number after the dot. It has to be present on the host system, not in the container:
 
@@ -251,6 +252,10 @@ Now, enable starting bird, since for some reason this is not automatically done 
     Synchronizing state for bird.service with sysvinit using update-rc.d...
     Executing /usr/sbin/update-rc.d bird defaults
     Executing /usr/sbin/update-rc.d bird enable
+    root@birdbase:/# systemctl enable bird6
+	Synchronizing state for bird6.service with sysvinit using update-rc.d...
+	Executing /usr/sbin/update-rc.d bird6 defaults
+	Executing /usr/sbin/update-rc.d bird6 enable
 
 ### BIRD logfile location
 
@@ -258,6 +263,10 @@ Since there is no separate syslog process in the container, create a directory w
 
     root@birdbase:/# mkdir /var/log/bird
     root@birdbase:/# chown bird: /var/log/bird
+	root@birdbase:/# true > /var/log/bird/bird.log; chown bird: /var/log/bird/bird.log
+	root@birdbase:/# true > /var/log/bird/bird6.log; chown bird: /var/log/bird/bird6.log
+
+The creation of the log file is necessary to work around a bug in the Debian packaging, that causes the logfile to be created with root as owner, and subsequent causes bird startup to fail because it cannot write to the log file as user bird. :-(
 
 ### IP forwarding
 
