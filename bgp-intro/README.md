@@ -1,55 +1,47 @@
 BGP
 ===
 
-Blablabla, work in progress here.
+In the previous tutorial, we discovered how to let [OSPF](/ospf-intro/README.md) dynamically configure routing inside a network. This tutorial provides an introduction to another routing protocol, which is BGP, the Border Gateway Protocol. As the name implies, this protocol acts on the border of a network. Where OSPF is well suited to keep track of all tiny details of what's happening in our internal network, BGP will be talking to the outside world to interconnect our network with other networks, managed by someone else.
 
-In the [previous tutorial, we discovered how to let OSPF dynamically configure routing](/ospf-intro/README.md) in a network.
+## BGP Essentials
 
-This tutorial provides an introduction to another routing protocol, which is BGP, the Border Gateway Protocol.
-
-BGP is not an alternative to OSPF. It's used for different things.
-
-To start off quickly, here's the bare essentials:
+When routers talk BGP to each other, they essentially just claim that network ranges are reachable via them:
 
 ![BGP network, barebones](/bgp-intro/bgp-heythere.png)
 
-When routers talk BGP to each other, they just claim that some network ranges are reachable via them. Voila.
-
-Ok, a bit less simplified:
+Let's look at the same picture again, hiding less information:
 
 ![BGP network, less simplified](/bgp-intro/bgp-hey2.png)
 
- * Between routers: small subnet, like an IPv4 /30 or /31, which only contains the two routers.
- * Often direct links, in this bird/openvswitch tutorial just use a vlan
- * A complete network under control of somebody has an AS number, an Autonomous System
+The picture shows two networks, which are interconnected through router `R3` and `R10`.
+
+ * A complete network under control of somebody has an AS ([Autonomous System](https://tools.ietf.org/html/rfc1930)) number. By specifying the AS number when configuring BGP connections, we let it know if the neighbour is in our own network (our AS), or in an external network (another AS).
+ * If neighbouring routers between different networks are directly connected, they often interconnect using a minimal sized network range. For IPv4, this is usually a `/30` and for IPv6 a `/120` or a `/126` prefix, containing only the two routers. In the example above, the small network ranges are taken from the network of `AS64080`.
+ * The routes that are published to another network are as aggregated as possible, to minimize the amount of them. While the internal routing table in for example AS64080 might contain dozens of prefixes, for each little vlan, and probably a number of single host routes (IPv4 `/32` and IPv6 `/128`), they're advertised to the outside as just three routes in total.
 
 ## OSPF vs. BGP
 
-While the title of this section might seem logical, since we're considering BGP after just having spent quite some time on OSPF, it's actually a non-issue. OSPF and BGP are two very different routing protocols, which are used to get different things done.
+While the title of this section might seem logical, since we're considering BGP after just having spent quite some time on OSPF, it's actually a non-issue. OSPF and BGP are two very different routing protocols, which are used to get different things done. Nonetheless, let's look at some differences:
 
 OSPF:
- * routes in the network are originated by putting ip addresses on a network interface of a router, not manually defined
- * these are addresses and subnets that are actually in use
- * every router has a full detailed view on the network using link state updates that are broadcasted over the network
+ * Routes in the network are originated by just putting ip addresses on a network interface of a router, and letting the routing protocol pick them up automatically.
+ * The routes in OSPF are addresses and subnets that are actually in use.
+ * Every router that participates in the OSPF protocol has a full detailed view on the network using link state updates that are broadcasted over the network.
 
 BGP:
- * only publish "umbrella" ranges, not much detail
- * there is no actual proof that the addresses are actually in use.
- * routers know that some prefix is reachable via another network, but where OSPF shortest path deals with knowledge about all separate routers, paths and weights, BGP just looks on a higher level, the shortest path, considering a complete network being one step.
+ * Routes that are published to other networks are "umbrella ranges", which are as big as possible and are defined manually.
+ * There is no actual proof that the addresses which are advertised are actually in use inside the network.
+ * A neighbour BGP router knows that some prefix is reachable via another network, but where OSPF shortest path deals with knowledge about all separate routers, paths and weights, BGP just looks on a higher level, the shortest path, considering a complete network (AS) being one step.
 
 So, OSPF is an IGP (Interior Gateway Protocol) and BGP is an EGP (Exterior Gateway Protocol). BGP can connect OSPF networks to each other, hiding a lot of detail inside them.
 
-![BGP network, three ASses](/bgp-intro/bgp-hey3.png)
+## BGP and OSPF with BIRD
 
-R2 tells R3 that it may send traffic for `10.2.0.0/16` and `10.1.0.0/16` to it. It also provides an AS-path with each route. The route `10.2.0.0/16` only has `65002` as AS-path, so R3 knows that this route originates from `AS65002`. The route `10.1.0.0/16` has an AS-path of `65002,65001`, so R3 will learn that this route actually originates from `AS65001`, and apparently `AS65002` wants to relay traffic to it through its own network.
-
-But, later. First of all, do it with bird, build full example.
-
-## BIRD BGP
+In the second half of this tutorial we'll configure a network, using OSPF, BGP and the BIRD routing software. BGP wise, it's kept simple, using just a single connection between two networks.
 
 ![BGP and OSPF network](/bgp-intro/bgp-ospf.png)
 
-Whoa, such network.
+It's starting to look serious now!
 
 Hopsa, clone some containers, copy paste configuration
  * already provide bird config with ospf for internal network
