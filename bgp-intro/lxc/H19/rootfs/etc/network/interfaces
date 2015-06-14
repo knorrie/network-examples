@@ -1,0 +1,14 @@
+auto lo
+iface lo inet loopback
+
+auto vlan48
+iface vlan48 inet manual
+	up ip link set up dev vlan48
+	up ip addr add 10.40.52.19/21 brd + dev vlan48
+	up ip addr add 2001:db8:10:30::413/117 dev vlan48
+	up ip route add default via 10.40.48.1 dev vlan48
+	up ip route add default via 2001:db8:10:30::1 dev vlan48
+	down ip route -6 del default
+	down ip addr del 2001:db8:10:30::413/117 dev vlan48
+	down ip addr del 10.40.52.19/21 dev vlan48
+	down up link set down dev vlan48
