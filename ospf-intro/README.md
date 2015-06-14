@@ -96,7 +96,6 @@ To create the eight containers we need, connected together in different networks
 
  3. Set up the network interfaces in the lxc configuration. This can be done by removing all network related configuration that remains from the cloned birdbase container, and then appending all needed interface configuration by running the fixnetwork.sh script that can be found in `ospf-intro/lxc/` in this git repository. Of course, have a look at the contents of the script first, before executing it. Since this example is only using IPv4 and single IP addresses on the interfaces, I simply added them to the lxc configuration instead of the network/interfaces file inside the container.
 
-        sed -i '/lxc.network/d' R*/config H*/config
         . ./fixnetwork.sh
 
  4. Copy extra configuration into the containers. The ospf-intro/lxc/ directory inside this git repository contains a little file hierarchy that can just be copied over the configuration of the containers. For each router, it's a network/interfaces configuration file which adds an IP address that corresponds with the Router ID to the loopback interface, and a simple BIRD configuration file that serves as a starting point for our next steps.
@@ -175,6 +174,9 @@ Let's have a look at the BIRD configuration of R6:
 
     # cat R6/rootfs/etc/bird/bird.conf
     router id 10.9.99.6;
+
+    log "/var/log/bird/bird.log" all;
+    debug protocols { states, routes, filters, interfaces }
     
     protocol kernel {
             import none;
@@ -377,8 +379,6 @@ First of all, don't forget to take a look at the BIRD documentation about OSPF. 
  * If you want to decrease the time until the network gets reconfigured when a router crashes without notifying anyone, you might want to play with hello timers, or even bfd.
  * Equal cost multipath routing (ECMP) is a big thing nowadays, which is used a lot to load balance traffic over multiple paths to a destination instead of choosing only one as best path. You can even enable that in the network we just built by just specifying `ecmp yes` in the OSPF configuration (try it on R2 or R6) and see what effect it has on the output of `ip r` on the linux command line. Just search for information on it on the Internet to learn more.
  * 'Cost' is an aspect that is fundamental to OSPF and the calculation of the shortest paths in the network. Traditionally, cost is related to the bandwith of a link between routers, and causes higher bandwith connections to be prefered above lower bandwith connections. Since we're working with switched Gigabit/s networks by default now, if it's not 10Gb/s, in the datacenter and even in our office, I've just been ignoring that.
-
-Enabling logging is also a nice way to get more insight in the way routing changes happen. There is no syslog daemon running in the containers which are used here, but BIRD can also directly log to a file. An example is to create `/var/log/bird` inside the container, chown it to the bird user, and then set `log "/var/log/bird/bird.log" all;` in `bird.conf`.
 
 Another thing you can play with is rolling out IPv6 on this little network that was just built. It needs a `bird6.conf` configuration file, and you'll soon find out doing IPv6 is very similar to what we did here with IPv4. Just pick some subnets from the `2001:db8::/32` network to work with and there you go.
 
