@@ -26,12 +26,12 @@ While the title of this section might seem logical, since we're considering BGP 
 OSPF:
  * Routes in the network are originated by just putting ip addresses on a network interface of a router, and letting the routing protocol pick them up automatically.
  * The routes in OSPF are addresses and subnets that are actually in use.
- * Every router that participates in the OSPF protocol has a full detailed view on the network using link state updates that are broadcasted over the network.
+ * Every router that participates in the OSPF protocol has a full detailed view on the network using link state updates that are broadcasted over the network. This knowledge is used to calculate the shortest path to every part of the network.
 
 BGP:
  * Routes that are published to other networks are "umbrella ranges", which are as big as possible and are defined manually.
  * There is no actual proof that the addresses which are advertised are actually in use inside the network.
- * A neighbour BGP router knows that some prefix is reachable via another network, but where OSPF shortest path deals with knowledge about all separate routers, paths and weights, BGP just looks on a higher level, the shortest path, considering a complete network (AS) being one step.
+ * A neighbour BGP router knows that some prefix is reachable via another network, but where OSPF shortest path deals with knowledge about all separate routers, paths and weights, BGP just looks on a higher level, considering a complete network (AS) being one step. By default BGP also tries to forward traffic into the direction that contains the smallest amount of AS-hops to a destination (the shortest AS-path), but BGP provides a fair amount of configurable options to influence the routing decisions.
 
 So, OSPF is an IGP (Interior Gateway Protocol) and BGP is an EGP (Exterior Gateway Protocol). BGP can connect OSPF networks to each other, hiding a lot of detail inside them.
 
