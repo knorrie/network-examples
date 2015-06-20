@@ -180,7 +180,7 @@ The routing table of `R3` contains information about the internal network of its
     fe80::/64 dev vlan216  proto kernel  metric 256 
     fe80::/64 dev vlan217  proto kernel  metric 256 
 
-Now, add the following configuration to `bird.conf` of `R3`:
+Now, add the following configuration to `bird.conf` of `R3`, and use the `birdc configure` command to activate it:
 
     ##############################################################################
     # eBGP R10
@@ -417,17 +417,110 @@ Assignments:
  * The OSPF protocol configuration that we are using does not contain any table, import or export. This means it's using the defaults, which are table master, import all, export none. Add a line specifying `import none;` to the OSPF protocol configuration, and look at the effect on the BIRD master table, and the Linux routing table.
  * Change the BIRD configuration to use only the `master` table, eliminating the extra `t_r10` routing table, without changing the set of routes that are actually exported to the Linux kernel. Doing so should show that it's entirely possible, but that decreasing complexity by removing the extra table will increase complexity in the filters needed.
 
-## Connecting the internal network, not only edge
+## Connecting the internal network
 
- * now ebgp router knows route to external network
- * how to tell the ospf network?
- * export the bgp routes to ospf? no!
- * explain ibgp -> tell non-edge-routers about external connectivity
- * ibgp: all routers must have ibgp session with edge routers
- * KEEP BGP IN BGP
- * do it! configure ibgp session between R0, R3
- * R0 can just import the info and put it into kernel table
- * wait what... bgp nexthop? -> first router *outside* the network
- * BGP needs OSPF to provide internal nexthop towards external router -> recap: BGP trusts on OSPF behaviour
- * small link nets for ebgp sessions need to be in IGP!
- * make it work!
+There's a last task that needs to be completed before every host and router in the two networks can see each other. As you just found out, only the border routers that actually speak BGP have learned the routes to the other network, and the internal routers still have no idea about them.
+
+So, how should `R0` and `R1` be told about the routes from `AS65033` that are already known to `R3`?
+
+### Maybe OSPF?
+
+The first thing that might come to mind is: "If the routes are in the BIRD master table, and we already have the routers inside the AS talking to each other, why not just export the BGP routes into OSPF?". Well, actually, that can be done, and we can try it for fun, but we won't keep this configuration for long. In order to redistribute the BGP routes into OSPF, just add the line `export where source = RTS_BGP;` to the OSPF section of both `R3` and `R10` and `birdc configure`.
+
+For example, `R11` now shows:
+
+    root@R11:/# birdc6 show r
+    BIRD 1.4.5 ready.
+    2001:db8:10:24::/120 via fe80::aff:fe28:2103 on vlan33 [ospf1 2015-06-14] * I (150/20) [10.40.32.12]
+    2001:db8:10:21::/120 dev vlan33 [ospf1 2015-06-14] * I (150/10) [10.40.32.12]
+    2001:db8:10:30::/117 dev vlan48 [ospf1 2015-06-14] * I (150/10) [10.40.32.11]
+    2001:db8:10:6::a/128 via fe80::aff:fe28:2101 on vlan33 [ospf1 2015-06-14] * I (150/20) [10.40.32.10]
+    2001:db8:10:6::c/128 via fe80::aff:fe28:2103 on vlan33 [ospf1 2015-06-14] * I (150/20) [10.40.32.12]
+    2001:db8:40::/48   via fe80::aff:fe28:2101 on vlan33 [ospf1 21:00:55] * E2 (150/20/10000) [10.40.32.10]
+    2001:db8:40:d910::/120 via fe80::aff:fe28:2101 on vlan33 [ospf1 2015-06-14] * I (150/20) [10.40.32.10]
+
+You can see that the route to the neighbor AS is present, but it's tagged as an 'E2' route in OSPF, instead of the usual 'I', meaning it was imported from a different routing protocol on the router that originates this prefix, `10.40.32.10`.
+
+Well, so long, please remove the export configuration for OSPF again, because it's not how it should be done after all. While using OSPF to transport the routes to the other internal routes might work in our little example network in this tutorial, it introduces a number of limitations, one of them being that all extra BGP specific information attached to a route is lost when converting it from a BGP to an OSPF route. This limits the amount of control that can be exercised on the selection of the exit point for traffic from a network to external networks.
+
+## No, just BGP itself!
+
+Instead of redistributing the BGP information into another protocol, it's best practice to just keep it in BGP itself. BGP is not only meant to be used to connect to a router in an external network, it can also be used to connect back to routers in our own AS. A connection to a router in a different AS is called an eBGP connection, and, a connection to a router inside the same AS is called an iBGP connection.
+
+ * OSPF, the IGP, contains all information about routes _inside_ our network.
+ * BGP, the EGP, contains all information about _external_ connectivity.
+
+![OSPF, eBGP and iBGP](/bgp-intro/ospf-ebgp-ibgp.png)
+
+### BIRD iBGP configuration
+
+In this tutorial, we'll be using iBGP to update the internal routers of both networks with information about routes that exist outside of their own network. Here's an example for the IPv6 iBGP connection between `R3` and `R1`:
+
+In the IPv6 BIRD configuration of `R3`, add:
+
+    protocol bgp ibgp_r1 {
+        import none;
+        export where source = RTS_BGP;
+        local    2001:db8:40::3 as 64080;
+        neighbor 2001:db8:40::1 as 64080;
+    }
+
+In the IPv6 BIRD configuration of `R1`, add:
+
+    protocol bgp ibgp_r3 {
+        local    2001:db8:40::1 as 64080;
+        neighbor 2001:db8:40::3 as 64080;
+    }
+
+Do a `birdc6 configure` in `R1` and `R3`, and look at the result on `R1`:
+
+    root@R1:/# birdc6 show route protocol ibgp_r3
+    BIRD 1.4.5 ready.
+    2001:db8:10::/48   via fe80::aff:fe28:d801 on vlan216 [ibgp_r3 23:26:12 from 2001:db8:40::3] * (100/20) [AS65033i]
+
+BIRD just learned a route to the remote AS! And, because of this, `H7` in `AS64080` and `R10` in `AS65033` can now find each other:
+
+    root@H7:/# traceroute6 -n 2001:db8:10:6::a
+    traceroute to 2001:db8:10:6::a (2001:db8:10:6::a), 30 hops max, 80 byte packets
+     1  2001:db8:40:3::1  0.556 ms  0.501 ms  0.501 ms
+     2  2001:db8:40:d8::1  1.059 ms  1.074 ms  1.078 ms
+     3  2001:db8:10:6::a  1.281 ms  1.274 ms  1.268 ms
+
+### How OSPF and BGP work together
+
+Since BGP only handles external connectivity, the protocol does not try to be clever about routes inside the local network. When taking a closer look at the BGP route that is received by `R1`, it shows that the BGP information attached to the route only contains information about the first hop _outside_ the network, which is called the BGP next hop:
+
+    root@R1:/# birdc6
+    BIRD 1.4.5 ready.
+    bird> show route all 2001:db8:10::/48
+    2001:db8:10::/48   via fe80::aff:fe28:d801 on vlan216 [ibgp_r3 23:26:11 from 2001:db8:40::3] * (100/20) [AS65033i]
+        Type: BGP unicast univ
+        BGP.origin: IGP
+        BGP.as_path: 65033
+        BGP.next_hop: 2001:db8:40:d910::2
+        BGP.local_pref: 100
+
+Since `R1` has only got this information, BIRD has to find out what the actual next hop to a router in a directly connected subnet has to be before a route can be exported to the Linux kernel. Luckily this is where the cooperation of the IGP comes into play. Since OSPF knows a route to `2001:db8:40:d910::2`, it can tell us where to forward the traffic in the local network to push it closer to that external BGP next hop. This is exactly the reason why the subnets that connect to routers just outside our own network are also included in OSPF as stub networks!
+
+    bird> show route for 2001:db8:40:d910::2
+    2001:db8:40:d910::/120 via fe80::aff:fe28:d801 on vlan216 [ospf1 2015-06-14] * I (150/20) [10.40.217.3]
+
+Remember the section about next-hops in the OSPF tutorial? If not, go back and re-read it ("Step three: figuring out shortest paths and determining next-hops"). The same mind boggling weird logic applies here. While we already know the path that traffic to `2001:db8:10:6::a` has to take to reach the remote network, all those knowledge gets thrown away even before the actual IP packet leaves this router... While BIRD knows the entry point in the remote network, as well as the path through the internal network to reach it, it can only install a route to the locally connected next hop into the actual forwarding routing table of the Linux kernel. The next router which receives the packet has to apply all routing logic again to get it forwarded into the right direction. Luckily, protocols like OSPF and BGP are designed in a way that enables us to trust that all routers that cooperate in 
+
+On the other hand, the only thing that the routers in`AS64080` know is that `R10` is the entry point for `AS65033`, and how to get there. They do not have the slightest knowledge about how the internal network of `AS65033` is organized, and there is no way for them to learn about this. When the traffic enters the remote network, that network will take care of delivering it to the actual router or host in that network.
+
+Welcome to the weird world of routing on the Internet! :-D
+
+### The usage of loopback addresses
+
+It might have occured to you that the iBGP BIRD configuration specifies the local and remote address using loopback addresses instead of interface addresses from an actual connected subnet. Think back of the "The loopback address" section of the OSPF tutorial! The BGP router on the edge of the network, and the internal router which wants to learn about external connectivity using iBGP can be anywhere in the internal network. There may even exist multiple possible paths between them. By using a loopback address as source and target of the iBGP connection, the connection will keep functioning as long as there is any possible path between the two routers. The flow of traffic to the external network will follow the same directions as the iBGP control connection, since both of them use the IGP to reach each other.
+
+![iBGP relying on the IGP](/bgp-intro/ibgp-loopback.png)
+
+### Final assignments:
+
+ * Well, this one is obvious... Practice some more by finishing setting up all connectivity by configuring the iBGP sessions for IPv4 and IPv6 between `R0` and `R3`, between `R10` and `R11`, and between `R10` and `R12`. Confirm by tracerouting from `H34` and `H19` in `AS65033` to `H6` and `H7` in `AS64080`.
+ * If there's any part of the this first BGP tutorial that you do not understand already, make sure you will. The following tutorials will be building upon the knowledge gathered here.
+ * Look around on the internet and read other blogs and tutorials about OSPF and BGP and see if they're much more easy to understand having a frame of reference which was set by following this tutorial.
+
+In the next tutorial, BGP Part II, I'll show more interesting topologies of different networks connecting together using BGP than just two networks with one eBGP connection. By doing so, we'll quickly discover and understand how the actual huge Internet is organized.
