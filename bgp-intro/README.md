@@ -180,7 +180,7 @@ The routing table of `R3` contains information about the internal network of its
     fe80::/64 dev vlan216  proto kernel  metric 256 
     fe80::/64 dev vlan217  proto kernel  metric 256 
 
-Now, add the following configuration to `bird.conf` of `R3`, and use the `birdc configure` command to activate it:
+Now, add the following configuration to `bird.conf` of `R3`:
 
     ##############################################################################
     # eBGP R10
@@ -264,7 +264,16 @@ After adding the configuration on `R3`, fire up the interactive BIRD console, us
 
     root@R3:/# birdc 
     BIRD 1.4.5 ready.
-    
+    bird> 
+
+Don't forget to tell BIRD to read and apply the changed configuration:
+
+    bird> con
+    Reading configuration from /etc/bird/bird.conf
+    Reconfigured
+
+Now, the three new protocols should be shown:
+
     bird> show protocols 
     name     proto    table    state  since       info
     kernel1  Kernel   master   up     2015-06-14  
@@ -443,7 +452,7 @@ You can see that the route to the neighbor AS is present, but it's tagged as an 
 
 Well, so long, please remove the export configuration for OSPF again, because it's not how it should be done after all. While using OSPF to transport the routes to the other internal routes might work in our little example network in this tutorial, it introduces a number of limitations, one of them being that all extra BGP specific information attached to a route is lost when converting it from a BGP to an OSPF route. This limits the amount of control that can be exercised on the selection of the exit point for traffic from a network to external networks.
 
-## No, just BGP itself!
+### Just use BGP itself
 
 Instead of redistributing the BGP information into another protocol, it's best practice to just keep it in BGP itself. BGP is not only meant to be used to connect to a router in an external network, it can also be used to connect back to routers in our own AS. A connection to a router in a different AS is called an eBGP connection, and, a connection to a router inside the same AS is called an iBGP connection.
 
@@ -507,9 +516,9 @@ Since `R1` has only got this information, BIRD has to find out what the actual n
     bird> show route for 2001:db8:40:d910::2
     2001:db8:40:d910::/120 via fe80::aff:fe28:d801 on vlan216 [ospf1 2015-06-14] * I (150/20) [10.40.217.3]
 
-Remember the section about next-hops in the OSPF tutorial? If not, go back and re-read it ("Step three: figuring out shortest paths and determining next-hops"). The same mind boggling weird logic applies here. While we already know the path that traffic to `2001:db8:10:6::a` has to take to reach the remote network, all those knowledge gets thrown away even before the actual IP packet leaves this router... While BIRD knows the entry point in the remote network, as well as the path through the internal network to reach it, it can only install a route to the locally connected next hop into the actual forwarding routing table of the Linux kernel. The next router which receives the packet has to apply all routing logic again to get it forwarded into the right direction. Luckily, protocols like OSPF and BGP are designed in a way that enables us to trust that all routers that cooperate in 
+Remember the section about next-hops in the OSPF tutorial? If not, go back and re-read it ("Step three: figuring out shortest paths and determining next-hops"). The same mind boggling weird logic applies here. While we already know the path that traffic to `2001:db8:10:6::a` has to take to reach the remote network, all those knowledge gets thrown away even before the actual IP packet leaves this router... While BIRD knows the entry point in the remote network, as well as the path through the internal network to reach it, it can only install a route to the locally connected next hop into the actual forwarding routing table of the Linux kernel. The next router which receives the packet has to apply all routing logic again to get it forwarded into the right direction. Luckily, protocols like OSPF and BGP are designed in a way that enables us to trust that all routers that cooperate in the routing protocols have the same mindset and will perfectly work together to get the traffic to its destination without endlessly forwarding it in loops between them.
 
-On the other hand, the only thing that the routers in`AS64080` know is that `R10` is the entry point for `AS65033`, and how to get there. They do not have the slightest knowledge about how the internal network of `AS65033` is organized, and there is no way for them to learn about this. When the traffic enters the remote network, that network will take care of delivering it to the actual router or host in that network.
+The only thing that the routers in`AS64080` know is that `R10` is the entry point for `AS65033`, and how to get there. They do not have the slightest knowledge about how the internal network of `AS65033` is organized, and there is no way for them to learn about this. When the traffic enters the remote network, that network will take care of delivering it to the actual router or host in that network.
 
 Welcome to the weird world of routing on the Internet! :-D
 
