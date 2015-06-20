@@ -472,6 +472,8 @@ In the IPv6 BIRD configuration of `R1`, add:
         neighbor 2001:db8:40::3 as 64080;
     }
 
+Using the same AS number for the local and neighbor address simply tells BIRD that we're dealing with an iBGP connection.
+
 Do a `birdc6 configure` in `R1` and `R3`, and look at the result on `R1`:
 
     root@R1:/# birdc6 show route protocol ibgp_r3
