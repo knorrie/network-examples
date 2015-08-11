@@ -57,7 +57,7 @@ Our networks start to look serious now! Thankfully, most of the configuration is
         lxc-clone -s birdbase H19
         lxc-clone -s birdbase H34
 
- 3. Set up the network interfaces in the lxc configuration. This can be done by removing all network related configuration that remains from the cloned birdbase container, and then appending all needed interface configuration by running the fixnetwork.sh script that can be found in `bgp-intro/lxc/` in this git repository. Of course, have a look at the contents of the script first, before executing it. Since this example is only using IPv4 and single IP addresses on the interfaces, I simply added them to the lxc configuration instead of the network/interfaces file inside the container.
+ 3. Set up the network interfaces in the lxc configuration. This can be done by removing all network related configuration that remains from the cloned birdbase container, and then appending all needed interface configuration by running the fixnetwork.sh script that can be found in `bgp-intro/lxc/` in this git repository. Of course, have a look at the contents of the script first, before executing it.
 
         . ./fixnetwork.sh
 
