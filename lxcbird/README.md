@@ -82,15 +82,6 @@ To enable masquerading outgoing traffic from the test networks, make sure you en
 
 ...which can be done for IPv4, as well as for IPv6, because NAT for IPv6 has finally been implemented. For test environments like this, it's very helpful, since we can just use documentation addresses from `2001:db8::/32` and are still able to access the outside internet if needed.
 
-## Disabling icmp error rate limiting
-
-Since we'll be doing a lot of tracerouting in the example networks, it's nice to disable icmp error rate limiting in sysctl.conf, to prevent hickups while executing quick subsequent traceroute commands:
-
-    net.ipv4.icmp_ratelimit = 0
-    net.ipv6.icmp.ratelimit = 0
-
-You probably wouldn't want to do this in a production network. For more information, see [the blog post "A strange packet loss"](http://backreference.org/2012/11/16/a-strange-packet-loss/)
-
 ## Setting up version control
 
     lxcbird:/var/lib/lxc 0-# git init
@@ -280,6 +271,15 @@ The creation of the log file is necessary to work around a bug in the Debian pac
 ### IP forwarding
 
 For IP forwarding, make sure you uncomment `net.ipv4.ip_forward=1` and `net.ipv6.conf.all.forwarding=1` in sysctl.conf inside the container.
+
+## Disabling icmp error rate limiting
+
+Since we'll be doing a lot of tracerouting in the example networks, it's nice to disable icmp error rate limiting in sysctl.conf, to prevent hickups while executing quick subsequent traceroute commands:
+
+    net.ipv4.icmp_ratelimit = 0
+    net.ipv6.icmp.ratelimit = 0
+
+You probably wouldn't want to do this in a production network. For more information, see [the blog post "A strange packet loss"](http://backreference.org/2012/11/16/a-strange-packet-loss/)
 
 ### Root password
 
