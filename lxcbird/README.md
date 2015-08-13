@@ -182,7 +182,7 @@ Now, before starting it, we need to finish up a few basic configuration settings
 
     lxcbird:/var/lib/lxc/birdbase 0-# echo 'APT::Install-Recommends "false";' > rootfs/etc/apt/apt.conf.d/00InstallRecommends
 
-I hate the default of installing recommends in Debian, so I always turn that off.
+I hate the default of installing recommends in Debian, so I always turn that off. Generally, it's recommended to install Recommends when using Debian, so it installs other packages that are 'generally found together with these ones'. Generally, I don't really see the pattern in this, and I recommend to just try disabling Recommends to see which issues you run into, so you learn more about how related software works together. Anyway, for your minimal BIRD lxc container, we won't run into any problem doing so now.
 
 ### Start!
 
