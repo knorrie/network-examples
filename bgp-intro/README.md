@@ -41,7 +41,9 @@ In the second half of this tutorial we'll configure a network, using OSPF, BGP a
 
 ![BGP and OSPF network](/bgp-intro/bgp-ospf.png)
 
-Our networks start to look serious now! Thankfully, most of the configuration is provided already, so we can quickly set up this whole network using our LXC environment. Just like in the previous tutorial, the birdbase container can be cloned, after which the lxc network information and configuration inside the containers can be copied into them.
+Our networks start to look serious now! It might be handy to print this image so you don't have to scroll back up all the time, comparing all the routes in the output of commands with the network topology.
+
+Thankfully, most of the configuration is provided already, so we can quickly set up this whole network using our LXC environment. Just like in the previous tutorial, the birdbase container can be cloned, after which the lxc network information and configuration inside the containers can be copied into them.
 
  1. Clone this git repository somewhere to be able to use some files from the bgp-intro/lxc/ directory inside.
  2. lxc-clone the birdbase container several times:
@@ -65,16 +67,8 @@ Our networks start to look serious now! Thankfully, most of the configuration is
 
  5. Start all containers
 
-        lxc-start -d -n R0
-        lxc-start -d -n R1
-        lxc-start -d -n R3
-        lxc-start -d -n R10
-        lxc-start -d -n R11
-        lxc-start -d -n R12
-        lxc-start -d -n H6
-        lxc-start -d -n H7
-        lxc-start -d -n H19
-        lxc-start -d -n H34
+        for router in 0 1 3 10 11 12; do lxc-start -d -n R$router; sleep 2; done
+		for host in 6 7 19 34; do lxc-start -d -n H$host; sleep 2; done
 
  6. Verify connectivity and look around a bit. Here's an example for R1:
 
@@ -531,7 +525,7 @@ It might have occured to you that the iBGP BIRD configuration specifies the loca
 ### Final assignments:
 
  * Well, this one is obvious... Practice some more by finishing setting up all connectivity by configuring the iBGP sessions for IPv4 and IPv6 between `R0` and `R3`, between `R10` and `R11`, and between `R10` and `R12`. Confirm by tracerouting from `H34` and `H19` in `AS65033` to `H6` and `H7` in `AS64080`.
- * If there's any part of the this first BGP tutorial that you do not understand already, make sure you will. The following tutorials will be building upon the knowledge gathered here.
+ * If there's any part of the this first BGP tutorial that you do not understand already, make sure you will. The following tutorials will be building upon the knowledge gathered here. Don't get depressed if you don't get all of it the first time. Just go back to the top and read the page again, there's an awful lot of information compacted in this page. If you're brave, make up your own example network and try to build it from scratch. It will take some time, but as soon as you are able to traceroute from one far end to another, you've likely run into and solved all aspects you missed before.
  * Look around on the internet and read other blogs and tutorials about OSPF and BGP and see if they're much more easy to understand having a frame of reference which was set by following this tutorial.
 
 In the next tutorial, BGP Part II, I'll show more interesting topologies of different networks connecting together using BGP than just two networks with one eBGP connection. By doing so, we'll quickly discover and understand how the actual huge Internet is organized.

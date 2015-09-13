@@ -102,14 +102,8 @@ To create the eight containers we need, connected together in different networks
 
  5. Start all containers
 
-        lxc-start -d -n R1
-        lxc-start -d -n R2
-        lxc-start -d -n R5
-        lxc-start -d -n R6
-        lxc-start -d -n H12
-        lxc-start -d -n H10
-        lxc-start -d -n H8
-        lxc-start -d -n H5
+        for router in 1 2 5 6; do lxc-start -d -n R$router; sleep 2; done
+		for host in 12 10 8 5; do lxc-start -d -n H$host; sleep 2; done
 
  6. Verify connectivity and look around a bit. Here's an example for R1:
 
