@@ -6,7 +6,7 @@ cat <<EOF >> R0/config
 
 lxc.network.type = veth
 lxc.network.flags = up
-lxc.network.name = ibgp
+lxc.network.name = lan
 lxc.network.veth.pair = r0.1
 lxc.network.script.up = /etc/lxc/lxc-openvswitch
 lxc.network.script.down = /etc/lxc/lxc-openvswitch
@@ -23,7 +23,7 @@ cat <<EOF >> R1/config
 
 lxc.network.type = veth
 lxc.network.flags = up
-lxc.network.name = ibgp
+lxc.network.name = lan
 lxc.network.veth.pair = r1.1
 lxc.network.script.up = /etc/lxc/lxc-openvswitch
 lxc.network.script.down = /etc/lxc/lxc-openvswitch
@@ -47,7 +47,7 @@ cat <<EOF >> R2/config
 
 lxc.network.type = veth
 lxc.network.flags = up
-lxc.network.name = ibgp
+lxc.network.name = lan
 lxc.network.veth.pair = r2.1
 lxc.network.script.up = /etc/lxc/lxc-openvswitch
 lxc.network.script.down = /etc/lxc/lxc-openvswitch
@@ -57,7 +57,7 @@ cat <<EOF >> R10/config
 
 lxc.network.type = veth
 lxc.network.flags = up
-lxc.network.name = ibgp
+lxc.network.name = lan
 lxc.network.veth.pair = r10.2
 lxc.network.script.up = /etc/lxc/lxc-openvswitch
 lxc.network.script.down = /etc/lxc/lxc-openvswitch
@@ -81,7 +81,7 @@ cat <<EOF >> R11/config
 
 lxc.network.type = veth
 lxc.network.flags = up
-lxc.network.name = ibgp
+lxc.network.name = lan
 lxc.network.veth.pair = r11.2
 lxc.network.script.up = /etc/lxc/lxc-openvswitch
 lxc.network.script.down = /etc/lxc/lxc-openvswitch
@@ -98,7 +98,7 @@ cat <<EOF >> R12/config
 
 lxc.network.type = veth
 lxc.network.flags = up
-lxc.network.name = ibgp
+lxc.network.name = lan
 lxc.network.veth.pair = r12.2
 lxc.network.script.up = /etc/lxc/lxc-openvswitch
 lxc.network.script.down = /etc/lxc/lxc-openvswitch
