@@ -49,31 +49,31 @@ On `R2`, inspect the output of `birdc6 show route` and `birdc6 show route all 20
 
     root@R2:/# birdc6 show route
     BIRD 1.4.5 ready.
-    2001:db8:20::/48   via fe80::c1a:1aff:fe4d:b889 on ibgp [ibgp_r1 2015-08-07 from 2001:db8::1] * (100/20) [AS65020i]
-    2001:db8::ff/128   via fe80::7054:20ff:fe32:2a34 on ibgp [ospf1 2015-08-07] * I (150/20) [10.0.0.0]
-    2001:db8:0:5::/120 via fe80::c1a:1aff:fe4d:b889 on ibgp [ospf1 2015-08-07] * I (150/20) [10.0.0.1]
-    2001:db8::/48      blackhole [static1 2015-08-07] * (200)
-    2001:db8:0:1::/120 dev ibgp [ospf1 2015-08-07] * I (150/10) [10.0.0.2]
-    2001:db8::1/128    via fe80::c1a:1aff:fe4d:b889 on ibgp [ospf1 2015-08-07] * I (150/20) [10.0.0.1]
-    2001:db8:0:3::/120 via fe80::7054:20ff:fe32:2a34 on ibgp [ospf1 2015-08-07] * I (150/20) [10.0.0.0]
-    2001:db8:10:4::/120 via fe80::c1a:1aff:fe4d:b889 on ibgp [ospf1 2015-08-07] * I (150/20) [10.0.0.1]
-    2001:db8:10::/48   via fe80::7054:20ff:fe32:2a34 on ibgp [ibgp_r0 19:36:36 from 2001:db8::ff] * (100/20) [AS65010i]
-                       via fe80::c1a:1aff:fe4d:b889 on ibgp [ibgp_r1 2015-08-07 from 2001:db8::1] (100/20) [AS65010i]
+    2001:db8:20::/48   via fe80::1cc0:33ff:fe50:32a0 on lan [ibgp_r1 23:03:22 from 2001:db8::1] * (100/20) [AS65020i]
+    2001:db8::ff/128   via fe80::74cc:42ff:fe54:4d47 on lan [ospf1 23:03:26] * I (150/20) [10.0.0.0]
+    2001:db8:0:5::/120 via fe80::1cc0:33ff:fe50:32a0 on lan [ospf1 23:03:21] * I (150/20) [10.0.0.1]
+    2001:db8::/48      blackhole [static1 23:02:35] * (200)
+    2001:db8:0:1::/120 dev lan [ospf1 23:02:36] * I (150/10) [10.0.0.2]
+    2001:db8::1/128    via fe80::1cc0:33ff:fe50:32a0 on lan [ospf1 23:03:21] * I (150/20) [10.0.0.1]
+    2001:db8:0:3::/120 via fe80::74cc:42ff:fe54:4d47 on lan [ospf1 23:03:26] * I (150/20) [10.0.0.0]
+    2001:db8:10:4::/120 via fe80::1cc0:33ff:fe50:32a0 on lan [ospf1 23:03:21] * I (150/20) [10.0.0.1]
+    2001:db8:10::/48   via fe80::74cc:42ff:fe54:4d47 on lan [ibgp_r0 23:03:27 from 2001:db8::ff] * (100/20) [AS65010i]
+                       via fe80::1cc0:33ff:fe50:32a0 on lan [ibgp_r1 23:03:22 from 2001:db8::1] (100/20) [AS65010i]
 
     root@R2:/# birdc6 show route all 2001:db8:10::/48
     BIRD 1.4.5 ready.
-    2001:db8:10::/48   via fe80::7054:20ff:fe32:2a34 on ibgp [ibgp_r0 19:36:36 from 2001:db8::ff] * (100/20) [AS65010i]
-            Type: BGP unicast univ
-            BGP.origin: IGP
-            BGP.as_path: 65010
-            BGP.next_hop: 2001:db8:0:3::10
-            BGP.local_pref: 100
-                       via fe80::c1a:1aff:fe4d:b889 on ibgp [ibgp_r1 2015-08-07 from 2001:db8::1] (100/20) [AS65010i]
-            Type: BGP unicast univ
-            BGP.origin: IGP
-            BGP.as_path: 65010
-            BGP.next_hop: 2001:db8:10:4::11
-            BGP.local_pref: 100
+    2001:db8:10::/48   via fe80::74cc:42ff:fe54:4d47 on lan [ibgp_r0 23:03:27 from 2001:db8::ff] * (100/20) [AS65010i]
+        Type: BGP unicast univ
+        BGP.origin: IGP
+        BGP.as_path: 65010
+        BGP.next_hop: 2001:db8:0:3::10
+        BGP.local_pref: 100
+                       via fe80::1cc0:33ff:fe50:32a0 on lan [ibgp_r1 23:03:22 from 2001:db8::1] (100/20) [AS65010i]
+        Type: BGP unicast univ
+        BGP.origin: IGP
+        BGP.as_path: 65010
+        BGP.next_hop: 2001:db8:10:4::11
+        BGP.local_pref: 100
 
 Notice that `R2` knows two different routes to `2001:db8:10::/48`. One of them gets chosen to end up in the linux kernel routing table (marked with the `*`), and the information about the route shows from which iBGP connection the route was learned.
 
