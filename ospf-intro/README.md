@@ -377,3 +377,5 @@ First of all, don't forget to take a look at the BIRD documentation about OSPF. 
 Another thing you can play with is rolling out IPv6 on this little network that was just built. It needs a `bird6.conf` configuration file, and you'll soon find out doing IPv6 is very similar to what we did here with IPv4. Just pick some subnets from the `2001:db8::/32` network to work with and there you go.
 
 After completing this tutorial, I also encourage you to start reading the other "An Introduction to OSPF" like pages on the internet, since they should be a lot easier to understand while having seen it work for real! Have fun.
+
+Next: [An introduction to BGP](/bgp-intro/README.md)

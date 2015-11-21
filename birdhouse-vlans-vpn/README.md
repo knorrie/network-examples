@@ -67,3 +67,5 @@ Tunnel gateway "owl":
 Carl realizes this is going to turn into a real nightmare when the network keeps expanding in the future, and starts looking for a better way to handle all the routes.
 
 It would be cool if the routers could just talk to each other on the internal routing lan and tell each other which networks are reachable via them...
+
+Next: [An introduction to OSPF](/ospf-intro/README.md)
