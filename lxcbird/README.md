@@ -5,7 +5,7 @@ For the tutorials, I've chosen to use Debian GNU/Linux with lxc, btrfs and openv
 So, make sure you get your hands on an empty physical or virtual machine. The one I use is a standard Debian x86-64 (a.k.a. amd64) virtual machine.
 
  * LXC provides a very lightweight way to run containers with their own network namespace, separated from each other.
- * I use btrfs subvolumes as container filesystems because I like btrfs. :-D
+ * I use btrfs subvolumes as container filesystems.
  * The advantage of using openvswitch is that we can very easily run a vlan capable switch, by just configuring ports on it as either access or trunk port with any of the vlan numbers assigned, much like you would do with a physical switch.
  * Creating a git repository just outside the container root filesystems with a .gitignore that only includes specific files allows to easily store the configuration of a whole test network. For example, when destroying a complete container and cloning it from another container again, a simple git checkout is enough to put the configuration inside the container back in place.
 
