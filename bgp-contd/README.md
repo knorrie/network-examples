@@ -79,11 +79,11 @@ Notice that `R2` knows two different routes to `2001:db8:10::/48`. One of them g
 
 `lxc-attach` to `R12` and verify the routes to the other two networks from there. Some additional `traceroute6 -n` to some destinations in remote networks might help.
 
-    root@R2:/# traceroute6 -n 2001:db8:10::12
-    traceroute to 2001:db8:10::12 (2001:db8:10::12), 30 hops max, 80 byte packets
-     1  2001:db8:0:1::ff  0.470 ms  0.461 ms  0.463 ms
-     2  2001:db8:0:3::10  0.729 ms  0.727 ms  0.638 ms
-     3  2001:db8:10::12  0.935 ms  0.962 ms  0.868 ms
+    root@R12:/# traceroute6 -n 2001:db8::2
+    traceroute to 2001:db8::2 (2001:db8::2), 30 hops max, 80 byte packets
+     1  2001:db8:10:2::10  0.611 ms  0.567 ms  0.587 ms
+     2  2001:db8:0:3::ff  0.543 ms  0.504 ms  0.685 ms
+     3  2001:db8::2  0.676 ms  0.673 ms  0.658 ms
 
  * look at the route to 2001:db8:20::/48 from R2 -> only connected to R1, one option, notice next-hop
  * traceroute -n from R2 to R20
