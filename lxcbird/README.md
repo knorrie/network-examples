@@ -218,7 +218,7 @@ Oh, there's our first problem... it's still a bit too basic :)
 
     root@birdbase:/# apt-get update
     [...]
-    root@birdbase:/# apt-get install iputils-ping bird dnsutils iptables iptstate mtr-tiny tcpdump nmon traceroute iftop
+    root@birdbase:/# apt-get install iputils-ping bird dnsutils iptables iptstate mtr-tiny tcpdump nmon traceroute iftop iperf3
     [...]
 
 The fact that we can do this already proves networking is set up right!
