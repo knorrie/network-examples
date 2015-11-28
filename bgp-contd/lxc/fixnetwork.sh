@@ -13,7 +13,7 @@ lxc.network.script.down = /etc/lxc/lxc-openvswitch
 
 lxc.network.type = veth
 lxc.network.flags = up
-lxc.network.name = ebgp_r10
+lxc.network.name = ebgp_r11
 lxc.network.veth.pair = r0.3
 lxc.network.script.up = /etc/lxc/lxc-openvswitch
 lxc.network.script.down = /etc/lxc/lxc-openvswitch
@@ -30,7 +30,7 @@ lxc.network.script.down = /etc/lxc/lxc-openvswitch
 
 lxc.network.type = veth
 lxc.network.flags = up
-lxc.network.name = ebgp_r11
+lxc.network.name = ebgp_r10
 lxc.network.veth.pair = r1.4
 lxc.network.script.up = /etc/lxc/lxc-openvswitch
 lxc.network.script.down = /etc/lxc/lxc-openvswitch
@@ -64,15 +64,8 @@ lxc.network.script.down = /etc/lxc/lxc-openvswitch
 
 lxc.network.type = veth
 lxc.network.flags = up
-lxc.network.name = ebgp_r0
-lxc.network.veth.pair = r10.3
-lxc.network.script.up = /etc/lxc/lxc-openvswitch
-lxc.network.script.down = /etc/lxc/lxc-openvswitch
-
-lxc.network.type = veth
-lxc.network.flags = up
-lxc.network.name = ebgp_r20
-lxc.network.veth.pair = r10.6
+lxc.network.name = ebgp_r1
+lxc.network.veth.pair = r10.4
 lxc.network.script.up = /etc/lxc/lxc-openvswitch
 lxc.network.script.down = /etc/lxc/lxc-openvswitch
 EOF
@@ -88,8 +81,15 @@ lxc.network.script.down = /etc/lxc/lxc-openvswitch
 
 lxc.network.type = veth
 lxc.network.flags = up
-lxc.network.name = ebgp_r1
-lxc.network.veth.pair = r11.4
+lxc.network.name = ebgp_r0
+lxc.network.veth.pair = r11.3
+lxc.network.script.up = /etc/lxc/lxc-openvswitch
+lxc.network.script.down = /etc/lxc/lxc-openvswitch
+
+lxc.network.type = veth
+lxc.network.flags = up
+lxc.network.name = ebgp_r20
+lxc.network.veth.pair = r11.6
 lxc.network.script.up = /etc/lxc/lxc-openvswitch
 lxc.network.script.down = /etc/lxc/lxc-openvswitch
 EOF
@@ -115,7 +115,7 @@ lxc.network.script.down = /etc/lxc/lxc-openvswitch
 
 lxc.network.type = veth
 lxc.network.flags = up
-lxc.network.name = ebgp_r10
+lxc.network.name = ebgp_r11
 lxc.network.veth.pair = r20.6
 lxc.network.script.up = /etc/lxc/lxc-openvswitch
 lxc.network.script.down = /etc/lxc/lxc-openvswitch

@@ -10,16 +10,9 @@ iface lan inet manual
 	down ip addr del 2001:db8:10:2::10/120 dev lan
 	down ip link set down dev lan
 
-auto ebgp_r0
-iface ebgp_r0 inet manual
-	up ip link set up dev ebgp_r0
-	up ip addr add 2001:db8:0:3::10/120 dev ebgp_r0
-	down ip addr del 2001:db8:0:3::10/120 dev ebgp_r0
-	down ip link set down dev ebgp_r0
-
-auto ebgp_r20
-iface ebgp_r20 inet manual
-	up ip link set up dev ebgp_r20
-	up ip addr add 2001:db8:10:6::10/120 dev ebgp_r20
-	down ip addr del 2001:db8:10:6::10/120 dev ebgp_r20
-	down ip link set down dev ebgp_r20
+auto ebgp_r1
+iface ebgp_r1 inet manual
+	up ip link set up dev ebgp_r1
+	up ip addr add 2001:db8:10:4::10/120 dev ebgp_r1
+	down ip addr del 2001:db8:10:4::10/120 dev ebgp_r1
+	down ip link set down dev ebgp_r1
