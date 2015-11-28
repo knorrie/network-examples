@@ -97,6 +97,7 @@ Now make sure your `.gitignore` looks like this, to include only very specific f
     */rootfs/*
     !*/rootfs/etc/
     */rootfs/etc/*
+    !*/rootfs/etc/hosts
     !*/rootfs/etc/sysctl.conf
 
     !*/rootfs/etc/network/
@@ -135,7 +136,6 @@ In the config file, instead of...
     lxc.network.name = vlan10
     lxc.network.veth.pair = birdbase.10
     lxc.network.flags = up
-    lxc.network.hwaddr = 02:00:c6:33:64:fe
     lxc.network.script.up = /etc/lxc/lxc-openvswitch
     lxc.network.script.down = /etc/lxc/lxc-openvswitch
 
@@ -173,6 +173,7 @@ Instead of setting the container IP address and gateway in the lxc configuration
         up ip route add default via 2001:db8:1998::1 dev vlan10
         down ip -6 route del default
         down ip addr del 2001:db8:1998::fe/120 dev vlan10
+        down ip route del default
         down ip addr del 198.51.100.254/24 dev vlan10
         down ip link set down dev vlan10
 
@@ -253,9 +254,9 @@ Now, enable starting bird, since for some reason this is not automatically done 
     Executing /usr/sbin/update-rc.d bird defaults
     Executing /usr/sbin/update-rc.d bird enable
     root@birdbase:/# systemctl enable bird6
-	Synchronizing state for bird6.service with sysvinit using update-rc.d...
-	Executing /usr/sbin/update-rc.d bird6 defaults
-	Executing /usr/sbin/update-rc.d bird6 enable
+    Synchronizing state for bird6.service with sysvinit using update-rc.d...
+    Executing /usr/sbin/update-rc.d bird6 defaults
+    Executing /usr/sbin/update-rc.d bird6 enable
 
 ### BIRD logfile location
 
@@ -263,14 +264,14 @@ Since there is no separate syslog process in the container, create a directory w
 
     root@birdbase:/# mkdir /var/log/bird
     root@birdbase:/# chown bird: /var/log/bird
-	root@birdbase:/# true > /var/log/bird/bird.log; chown bird: /var/log/bird/bird.log
-	root@birdbase:/# true > /var/log/bird/bird6.log; chown bird: /var/log/bird/bird6.log
+    root@birdbase:/# true > /var/log/bird/bird.log; chown bird: /var/log/bird/bird.log
+    root@birdbase:/# true > /var/log/bird/bird6.log; chown bird: /var/log/bird/bird6.log
 
 The creation of the log file is necessary to work around a bug in the Debian packaging, that causes the logfile to be created with root as owner, and subsequent causes bird startup to fail because it cannot write to the log file as user bird. :-(
 
 ### IP forwarding
 
-For IP forwarding, make sure you uncomment `net.ipv4.ip_forward=1` and `net.ipv6.conf.all.forwarding=1` in sysctl.conf inside the container.
+For IP forwarding, make sure you uncomment `net.ipv4.ip_forward=1` and `net.ipv6.conf.all.forwarding=1` in sysctl.conf inside the container. Hint: editing configuration files inside a container can be done from outside the container, by looking for them in the `rootfs` folder inside the container directories.
 
 ## Disabling icmp error rate limiting
 
@@ -287,12 +288,14 @@ You might also want to change the password for root, since it's set to some rand
 
 ## Cleanup
 
-Before the birdbase container is ready as a template to be used for cloning other containers, let's remove some container-specific configuration, so we won't accidentally start a new one with duplicate configuration, and, to make the diff look nicer when configuring a clone:
+Before the birdbase container is ready as a template to be used for cloning other containers, let's shut it down and remove some container-specific configuration, so we won't accidentally start a new one with duplicate configuration, and, to make the diff look nicer when configuring a clone:
 
-    sed -i /^lxc.network/d birdbase/config
-    /bin/true > birdbase/rootfs/bird/bird.conf
-    /bin/true > birdbase/rootfs/bird/bird6.conf
-    /bin/true > birdbase/rootfs/network/interfaces
+    lxcbird:/var/lib/lxc 1-# lxc-stop -n birdbase
+
+    lxcbird:/var/lib/lxc 1-# sed -i /^lxc.network/d birdbase/config
+    lxcbird:/var/lib/lxc 1-# /bin/true > birdbase/rootfs/etc/bird/bird.conf
+    lxcbird:/var/lib/lxc 1-# /bin/true > birdbase/rootfs/etc/bird/bird6.conf
+    lxcbird:/var/lib/lxc 1-# /bin/true > birdbase/rootfs/etc/network/interfaces
 
 Finally, we can check that git only wants to store our bird and network configuration, and do so:
 
