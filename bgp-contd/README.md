@@ -5,6 +5,8 @@ In [BGP, Part I](/bgp-intro/README.md), our knowledge of OSPF to manage routing 
 
 ![BGP network with redundant paths](/bgp-contd/bgp-redundancy.png)
 
+Hint: print this picture so you can make notes on it and keep it in sight during the tutorial!
+
 In the picture, we see three networks, which are connected by several links that use the BGP protocol to exchange routing information. I've deliberately kept the internal structure of the networks as simple as possible.
  * `AS65000` and `AS65010`, the left and right network, have a redundant link between them. When properly configured, this should make it possible to do maintenance on either of the two connections (e.g. shutting down `R0` and `R10`, or just one of them, or the physical link in between) without any interruption of network traffic between the two networks.
  * The links between `R0` and `R10`, and between `R1` and `R11` are high bandwidth, low latency links.
@@ -21,13 +23,7 @@ Thankfully, most of the configuration is provided already, so we can quickly set
  1. Clone this git repository somewhere to be able to use some files from the bgp-contd/lxc/ directory inside.
  2. lxc-clone the birdbase container several times:
 
-        lxc-clone -s birdbase R0
-        lxc-clone -s birdbase R1
-        lxc-clone -s birdbase R2
-        lxc-clone -s birdbase R10
-        lxc-clone -s birdbase R11
-        lxc-clone -s birdbase R12
-        lxc-clone -s birdbase R20
+        for router in 0 1 2 10 11 12 20; do lxc-clone -s birdbase R$router; done
 
  3. Set up the network interfaces in the lxc configuration. This can be done by removing all network related configuration that remains from the cloned birdbase container, and then appending all needed interface configuration by running the fixnetwork.sh script that can be found in `bgp-contd/lxc/` in this git repository. Of course, have a look at the contents of the script first, before executing it.
 
@@ -37,68 +33,93 @@ Thankfully, most of the configuration is provided already, so we can quickly set
 
  5. Start all containers
 
-        for router in 0 1 2 10 11 12 20; do lxc-start -d -n R$router; sleep 2; done
+        for router in 0 1 2 10 11 12 20; do echo "Starting R${router}..."; lxc-start -d -n R$router; sleep 2; done
 
-## Looking around
+## Looking around...
 
-There's a lot of bird config already in place, which looks like the Part I config, but multiple times for each connection. Take some time to browse through the bird6.conf files on all routers, and make sure you understand what the configuration is doing.
+There's a lot of bird config already in place, which looks like the Part I config, but multiple times for each connection. Take some time to browse through the bird6.conf files on all routers, so you can grasp the idea of how the configuration is set up. Hint: you can also do this from outside the lxc containers, so you can easily open multiple files and compare them.
 
-Note: some parts of the configuration are still missing, because we'll be adding them while doing the tutorial. If you can already spot something that is missing now, you get bonus points! :)
+Note: some parts of the configuration are still missing, because we'll be adding them while doing the tutorial. If you can already spot something that is missing now, you receive some bonus points! :)
 
-On `R2`, inspect the output of `birdc6 show route` and `birdc6 show route all 2001:db8:10::/48`:
+### ...from the viewpoint of R2
 
-    root@R2:/# birdc6 show route
-    BIRD 1.4.5 ready.
-    2001:db8:20::/48   via fe80::1cc0:33ff:fe50:32a0 on lan [ibgp_r1 23:03:22 from 2001:db8::1] * (100/20) [AS65020i]
-    2001:db8::ff/128   via fe80::74cc:42ff:fe54:4d47 on lan [ospf1 23:03:26] * I (150/20) [10.0.0.0]
-    2001:db8:0:5::/120 via fe80::1cc0:33ff:fe50:32a0 on lan [ospf1 23:03:21] * I (150/20) [10.0.0.1]
-    2001:db8::/48      blackhole [static1 23:02:35] * (200)
-    2001:db8:0:1::/120 dev lan [ospf1 23:02:36] * I (150/10) [10.0.0.2]
-    2001:db8::1/128    via fe80::1cc0:33ff:fe50:32a0 on lan [ospf1 23:03:21] * I (150/20) [10.0.0.1]
-    2001:db8:0:3::/120 via fe80::74cc:42ff:fe54:4d47 on lan [ospf1 23:03:26] * I (150/20) [10.0.0.0]
-    2001:db8:10:4::/120 via fe80::1cc0:33ff:fe50:32a0 on lan [ospf1 23:03:21] * I (150/20) [10.0.0.1]
-    2001:db8:10::/48   via fe80::74cc:42ff:fe54:4d47 on lan [ibgp_r0 23:03:27 from 2001:db8::ff] * (100/20) [AS65010i]
-                       via fe80::1cc0:33ff:fe50:32a0 on lan [ibgp_r1 23:03:22 from 2001:db8::1] (100/20) [AS65010i]
+`lxc-attach` to `R2` and verify the routes to the other two networks from there. It might take a few extra seconds after starting all the containers for them to figure out the complete network topology and set up all routing protocol sessions and exchange all routing information.
 
-    root@R2:/# birdc6 show route all 2001:db8:10::/48
-    BIRD 1.4.5 ready.
-    2001:db8:10::/48   via fe80::74cc:42ff:fe54:4d47 on lan [ibgp_r0 23:03:27 from 2001:db8::ff] * (100/20) [AS65010i]
-        Type: BGP unicast univ
-        BGP.origin: IGP
-        BGP.as_path: 65010
-        BGP.next_hop: 2001:db8:0:3::10
-        BGP.local_pref: 100
-                       via fe80::1cc0:33ff:fe50:32a0 on lan [ibgp_r1 23:03:22 from 2001:db8::1] (100/20) [AS65010i]
-        Type: BGP unicast univ
-        BGP.origin: IGP
-        BGP.as_path: 65010
-        BGP.next_hop: 2001:db8:10:4::11
-        BGP.local_pref: 100
+ * Do a `birdc6 show route` and `birdc6 show route all 2001:db8:10::/48`.
+ * `traceroute6 2001:db8:10::12` to `R12` in `AS65010`
+ * Look at the route from `R2` to `R20`: `birdc6 show route all 2001:db8:20::/48`
+ * `traceroute6 2001:db8:20::20` to `R20` in `AS65020`
 
-Notice that `R2` knows two different routes to `2001:db8:10::/48`. One of them gets chosen to end up in the linux kernel routing table (marked with the `*`), and the information about the route shows from which iBGP connection the route was learned.
+The output of the commands should show that `R2` knows two different routes to `2001:db8:10::/48`. One of them gets chosen to end up in the linux kernel routing table (marked with the `*`), and the information about the route shows from which ibgp connection the route was learned. In my case here it's the route learned from the ibgp session `ibgp_r0` that gets chosen, but it might as well be the one via `R1` in your case.
 
-`lxc-attach` to `R12` and verify the routes to the other two networks from there. Some additional `traceroute6 -n` to some destinations in remote networks might help.
+For traffic to `R20`, there's only one route shown from the viewpoint of `R2`, which is pointing to `R1`, since this is the only router in the local network that has a connection to the remote `AS65020`.
 
-    root@R12:/# traceroute6 -n 2001:db8::2
-    traceroute to 2001:db8::2 (2001:db8::2), 30 hops max, 80 byte packets
-     1  2001:db8:10:2::10  0.611 ms  0.567 ms  0.587 ms
-     2  2001:db8:0:3::ff  0.543 ms  0.504 ms  0.685 ms
-     3  2001:db8::2  0.676 ms  0.673 ms  0.658 ms
+## Redundancy and asymmetric traffic flows
 
- * look at the route to 2001:db8:20::/48 from R2 -> only connected to R1, one option, notice next-hop
- * traceroute -n from R2 to R20
+Since there are two active network paths between `AS65000` and `AS65010`, each of the networks is free to choose which connection to use to send traffic to the other network.
 
-        root@R2:/# traceroute6 -n 2001:db8:20::20
-        traceroute to 2001:db8:20::20 (2001:db8:20::20), 30 hops max, 80 byte packets
-         1  2001:db8:0:1::1  0.384 ms  0.353 ms  0.334 ms
-         2  2001:db8:20::20  0.319 ms  0.345 ms  0.252 ms
+Let's do some traceroute again, to look at traffic flow between `R2` and `R12`:
 
-## Redundancy
+    root@R2:/# traceroute6 r12
+    traceroute to r12 (2001:db8:10::12), 30 hops max, 80 byte packets
+     1  lan.r0 (2001:db8:0:1::ff)  0.384 ms  0.385 ms  0.389 ms
+     2  ebgp_r0.r11 (2001:db8:0:3::11)  0.565 ms  0.577 ms  0.490 ms
+     3  lo.r12 (2001:db8:10::12)  1.081 ms  1.012 ms  1.014 ms
 
- * 2 connections between `AS65000` and `AS65010`
+    root@R12:/# traceroute6 r2
+    traceroute to r2 (2001:db8::2), 30 hops max, 80 byte packets
+     1  lan.r10 (2001:db8:10:2::10)  0.292 ms  0.290 ms  0.369 ms
+     2  ebgp_r10.r1 (2001:db8:10:4::1)  0.435 ms  0.375 ms  0.392 ms
+     3  lo.r2 (2001:db8::2)  0.829 ms  0.785 ms  0.770 ms
+
+Thanks to the information in the `/etc/hosts` file in the containers, the output shows us the names of the network interfaces that correspond to the used addresses.
+
+As you can see, `R2` chooses to send traffic over `R0` as next hop, which will forward it to `R11` to get it into `AS65010`. In the meantime, traffic in the other direction chooses the path over `R10` and `R1`. When receiving traffic, a router has no idea of the path that a packet has traveled along before arriving. When sending traffic back, the router will just use its own thoughts about the best path towards that destination, which might mean choosing an outgoing network interface that is different from the one the packet it's responding to was received on.
+
+_Understanding asymmetric traffic flow is essential in the process of debugging network troubles in a larger network._
+
+Let me give you an example why. Say, you're debugging latency on a connection to a remote host (look at the rtt measurements):
+
+    root@R2:/# traceroute6 r12
+    traceroute to r12 (2001:db8:10::12), 30 hops max, 80 byte packets
+     1  lan.r0 (2001:db8:0:1::ff)  0.389 ms  0.389 ms  0.398 ms
+     2  ebgp_r0.r11 (2001:db8:0:3::11)  0.614 ms  0.572 ms  0.525 ms
+     3  lo.r12 (2001:db8:10::12)  101.208 ms  101.121 ms  101.142 ms
+
+When you're not aware of the possibility of asymmetric traffic flows, you could incorrectly assume that there's a problem with the network link between `R11` and `R12`, because of the introduced extra latency. However, there might be multiple other possibilities, since you do not know which route the traffic from `R12` back to you takes. In our little example network we know, since we just found out by looking at it from both ends. It could as well be the link between `R12` and `R10`, or between `R10` and `R1`, or even between `R1` and `R2`...
+
+Let's have a look at a trace from the other end back to `R2`:
+
+    root@R12:/# traceroute6 r2
+    traceroute to r2 (2001:db8::2), 30 hops max, 80 byte packets
+     1  lan.r10 (2001:db8:10:2::10)  0.402 ms  0.341 ms  0.330 ms
+     2  ebgp_r10.r1 (2001:db8:10:4::1)  200.490 ms  200.472 ms  200.453 ms
+     3  lo.r2 (2001:db8::2)  101.053 ms  101.039 ms  101.020 ms
+
+Router `R10` can be reached just fine, but the next step (`ebgp_r10.r1` is the network interface on `R1` that is looking at `R10`) shows quite some introduced latency. Since the shortest route from `R1` back to `R12` is by sending it back to `R10` directly, the total round trip in the second step shows twice the amount of extra latency, while the total round trip time for reaching `R2` only shows the introduced latency once.
+
+Here's an edited version of the traceroute output, with the paths mentioned:
+
+    root@R2:/# traceroute6 r12
+    traceroute to r12 (2001:db8:10::12), 30 hops max, 80 byte packets
+     1  lan.r0       r2 -> r0 (ttl expired), r0 -> r2
+     2  ebgp_r0.r11  r2 -> r0 -> r11 (ttl expired), r11 -> r0 -> r2
+     3  lo.r12       r2 -> r0 -> r11 -> r12 (destination), r12 -> r10 -> r1 -> r2
+
+    root@R12:/# traceroute6 r2
+    traceroute to r2 (2001:db8::2), 30 hops max, 80 byte packets
+     1  lan.r10      r12 -> r10 (ttl expired), r0 -> 12
+     2  ebgp_r10.r1  r12 -> r10 -> r1 (ttl expired), r1 -> r10 -> r12
+     3  lo.r2        r12 -> r10 -> r1 -> r2 (destination), r2 -> r0 -> r11 -> r12
+
+Introducing latency for test purposes can be done with the linux traffic control tooling. Here's the two commands I just used on `R1` and `R10` to achieve the effect shown above:
+
+    root@R1:/# tc qdisc add dev ebgp_r10 root netem delay 100ms
+    root@R10:/# tc qdisc add dev ebgp_r1 root netem delay 100ms
+
+## Moving traffic around
+
  * in order not to interrupt traffic in case of a partial outage or maintenance, traffic can move to the other connection
- * look at `root@R2:/# mtr -n 2001:db8:10::12`
- * in my case over `R0`, `R10`
  * go to `R0`, `birdc6`, `show protocols` and `disable ebgp_r10`
  * look what happens to the mtr, and look at `/var/log/bird/bird6.log`
  * now look at R1, does it see a route to AS65010? no? why? fix it.
@@ -122,6 +143,7 @@ Notice that `R2` knows two different routes to `2001:db8:10::/48`. One of them g
 
 ## Bonus
 
+ * ecmp
  * local preference (> AS path!)
  * med -> derive from next hop igp? also, potatoes
 
