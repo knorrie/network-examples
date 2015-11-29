@@ -46,9 +46,9 @@ Note: some parts of the configuration are still missing, because we'll be adding
 `lxc-attach` to `R2` and verify the routes to the other two networks from there. It might take a few extra seconds after starting all the containers for them to figure out the complete network topology and set up all routing protocol sessions and exchange all routing information.
 
  * Do a `birdc6 show route` and `birdc6 show route all 2001:db8:10::/48`.
- * `traceroute6 2001:db8:10::12` to `R12` in `AS65010`
+ * `traceroute 2001:db8:10::12` to `R12` in `AS65010`
  * Look at the route from `R2` to `R20`: `birdc6 show route all 2001:db8:20::/48`
- * `traceroute6 2001:db8:20::20` to `R20` in `AS65020`
+ * `traceroute 2001:db8:20::20` to `R20` in `AS65020`
 
 The output of the commands should show that `R2` knows two different routes to `2001:db8:10::/48`. One of them gets chosen to end up in the linux kernel routing table (marked with the `*`), and the information about the route shows from which ibgp connection the route was learned. In my case here it's the route learned from the ibgp session `ibgp_r0` that gets chosen, but it might as well be the one via `R1` in your case.
 
@@ -60,13 +60,13 @@ Since there are two active network paths between `AS65000` and `AS65010`, each o
 
 Let's do some traceroute again, to look at traffic flow between `R2` and `R12`:
 
-    root@R2:/# traceroute6 r12
+    root@R2:/# traceroute r12
     traceroute to r12 (2001:db8:10::12), 30 hops max, 80 byte packets
      1  lan.r0 (2001:db8:0:1::ff)  0.384 ms  0.385 ms  0.389 ms
      2  ebgp_r0.r11 (2001:db8:0:3::11)  0.565 ms  0.577 ms  0.490 ms
      3  lo.r12 (2001:db8:10::12)  1.081 ms  1.012 ms  1.014 ms
 
-    root@R12:/# traceroute6 r2
+    root@R12:/# traceroute r2
     traceroute to r2 (2001:db8::2), 30 hops max, 80 byte packets
      1  lan.r10 (2001:db8:10:2::10)  0.292 ms  0.290 ms  0.369 ms
      2  ebgp_r10.r1 (2001:db8:10:4::1)  0.435 ms  0.375 ms  0.392 ms
@@ -80,7 +80,7 @@ _Understanding asymmetric traffic flow is essential in the process of debugging 
 
 Let me give you an example why. Say, you're debugging latency on a connection to a remote host (look at the rtt measurements):
 
-    root@R2:/# traceroute6 r12
+    root@R2:/# traceroute r12
     traceroute to r12 (2001:db8:10::12), 30 hops max, 80 byte packets
      1  lan.r0 (2001:db8:0:1::ff)  0.389 ms  0.389 ms  0.398 ms
      2  ebgp_r0.r11 (2001:db8:0:3::11)  0.614 ms  0.572 ms  0.525 ms
@@ -90,7 +90,7 @@ When you're not aware of the possibility of asymmetric traffic flows, you could 
 
 Let's have a look at a trace from the other end back to `R2`:
 
-    root@R12:/# traceroute6 r2
+    root@R12:/# traceroute r2
     traceroute to r2 (2001:db8::2), 30 hops max, 80 byte packets
      1  lan.r10 (2001:db8:10:2::10)  0.402 ms  0.341 ms  0.330 ms
      2  ebgp_r10.r1 (2001:db8:10:4::1)  200.490 ms  200.472 ms  200.453 ms
@@ -100,13 +100,13 @@ Router `R10` can be reached just fine, but the next step (`ebgp_r10.r1` is the n
 
 Here's an edited version of the traceroute output, with the paths mentioned:
 
-    root@R2:/# traceroute6 r12
+    root@R2:/# traceroute r12
     traceroute to r12 (2001:db8:10::12), 30 hops max, 80 byte packets
      1  lan.r0       r2 -> r0 (ttl expired), r0 -> r2
      2  ebgp_r0.r11  r2 -> r0 -> r11 (ttl expired), r11 -> r0 -> r2
      3  lo.r12       r2 -> r0 -> r11 -> r12 (destination), r12 -> r10 -> r1 -> r2
 
-    root@R12:/# traceroute6 r2
+    root@R12:/# traceroute r2
     traceroute to r2 (2001:db8::2), 30 hops max, 80 byte packets
      1  lan.r10      r12 -> r10 (ttl expired), r0 -> 12
      2  ebgp_r10.r1  r12 -> r10 -> r1 (ttl expired), r1 -> r10 -> r12
@@ -119,24 +119,84 @@ Introducing latency for test purposes can be done with the linux traffic control
 
 ## Moving traffic around
 
- * in order not to interrupt traffic in case of a partial outage or maintenance, traffic can move to the other connection
- * go to `R0`, `birdc6`, `show protocols` and `disable ebgp_r10`
- * look what happens to the mtr, and look at `/var/log/bird/bird6.log`
- * now look at R1, does it see a route to AS65010? no? why? fix it.
+Having redundancy in the network has the advantage that the network can survive a partial outage, which can be either planned (maintenance) or unplanned (failure of a component).
 
-## Peering
+![BGP network with an inactive path](/bgp-contd/bgp-redundancy-ibgp-r0-r1.png)
 
- * simply the fact that two networks have an interconnect and exchange prefixes
+By disabling the BGP session on `R0` towards `R11`, we can force traffic between `AS65000` and `AS65010` to choose the route over `R1` and `R10` instead:
+
+    root@R0:/# birdc6
+    BIRD 1.4.5 ready.
+
+    bird> show protocols 
+    name     proto    table    state  since       info
+    kernel1  Kernel   master   up     15:07:17    
+    device1  Device   master   up     15:07:17    
+    ospf1    OSPF     master   up     15:07:17    Running
+    static1  Static   master   up     15:07:17    
+    p_master_to_bgp Pipe     master   up     15:07:17    => t_bgp
+    originate_to_r11 Static   t_r11    up     15:07:17    
+    ebgp_r11 BGP      t_r11    up     15:07:34    Established   
+    p_bgp_to_r11 Pipe     t_bgp    up     15:07:17    => t_r11
+    ibgp_r2  BGP      t_bgp    up     15:08:17    Established   
+
+    bird> disable ebgp_r11
+    ebgp_r11: disabled
+
+When doing some `mtr` from `R2` to `R12`, you can see the path switch over to the other connection, while disabling the eBGP session on `R0`:
+
+    root@R2:/# mtr r12
+
+                                 My traceroute  [v0.85]
+    R2 (::)                                                Sun Nov 29 15:30:58 2015
+    Keys:  Help   Display mode   Restart statistics   Order of fields   quit
+                                           Packets               Pings
+     Host                                Loss%   Snt   Last   Avg  Best  Wrst StDev
+     1. 2001:db8:0:1::ff                  0.0%    36    0.1   0.1   0.1   0.5   0.0
+        2001:db8:0:1::1
+     2. 2001:db8:0:3::11                  0.0%    36    0.1   0.1   0.1   0.4   0.0
+        2001:db8:10:4::10
+     3. 2001:db8:10::12                   0.0%    35    0.1   0.1   0.1   0.5   0.0
+
+Also, the bird6 log file in `/var/log/bird/bird6.log` shows that bird gets an update from the iBGP session to `R0` about the fact that the route to `2001:db8:10::/48` over `R0` should no longer be used, following by a replacement of the route in the linux kernel, pointing to `R1` instead:
+
+    ibgp_r0 > removed [replaced] 2001:db8:10::/48 via fe80::4ef:8ff:fe02:cef6 on lan
+    kernel1 < replaced 2001:db8:10::/48 via fe80::bc5d:a8ff:fee4:c062 on lan
+
+As I said a little earlier, there is still some configuration missing, although we didn't spot it yet it seems. Well, if you try to reach any router in `AS65010` from `R0`, you will see it fail:
+
+    root@R0:/# traceroute r11
+    traceroute to r11 (2001:db8:10::11), 30 hops max, 80 byte packets
+    connect: Network is unreachable
+
+Also, `R20` is not reachable from `R0`, while the connection between `AS65000` and `AS65020` is still active...
+
+    root@R0:/# traceroute r20
+    traceroute to r20 (2001:db8:20::20), 30 hops max, 80 byte packets
+    connect: Network is unreachable
+
+In the BGP introduction tutorial, we learned that iBGP sessions are used to share information about reachability of remote networks, outside of the own AS. By setting up an iBGP connection between `R2` and both `R0` and `R1`, we can make sure that `R2` is kept up to date about a path to external networks that are connected via `R0` and `R1`. However, the same has to be done between `R0` and `R1` to make sure that it knows an alternative route to the remote network `AS65010` when its own connection to it is down, and also knows to reach `AS65020` using `R1`.
+
+### Assignments
+
+Now, do the following things:
+ * Add iBGP configuration to share BGP routes between `R0` and `R1`, and also between `R10` and `R11`.
+ * Check that you can reach every external network from every router in all of the three networks.
+ * Try disabling some of the links between routers by using the `disable`/`enable` commands on the bird command line, or by changing the `import` and `export` rules in the `protocol bgp ebgp_r*` sections in `bird6.conf`, and check if you still can reach all parts of the network.
 
 ## Redundancy for the branch office
+
+![BGP network with redundant paths](/bgp-contd/bgp-redundancy.png)
 
  * two connections, disable to R1, whoops, not reachable from AS65000 any more
  * would be nice to
 
 
-## Transit
+## Peering and Transit
 
- * announcing received routes again to another AS
+ * Peering: simply the fact that two networks have an interconnect and exchange prefixes
+ * Transit: announcing received routes again to another AS
+
  * by default BGP will choose the shortest AS path
 
 ## Assignments
