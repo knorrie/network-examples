@@ -8,8 +8,8 @@ In [BGP, Part I](/bgp-intro/README.md), our knowledge of OSPF to manage routing 
 Hint: print this picture so you can make notes on it and keep it in sight during the tutorial!
 
 In the picture, we see three networks, which are connected by several links that use the BGP protocol to exchange routing information. I've deliberately kept the internal structure of the networks as simple as possible.
- * `AS65000` and `AS65010`, the left and right network, have a redundant link between them. When properly configured, this should make it possible to do maintenance on either of the two connections (e.g. shutting down `R0` and `R10`, or just one of them, or the physical link in between) without any interruption of network traffic between the two networks.
- * The links between `R0` and `R10`, and between `R1` and `R11` are high bandwidth, low latency links.
+ * `AS65000` and `AS65010`, the left and right network, have a redundant link between them. When properly configured, this should make it possible to do maintenance on either of the two connections (e.g. shutting down `R0` and `R11`, or just one of them, or the physical link in between) without any interruption of network traffic between the two networks.
+ * The links between `R0` and `R11`, and between `R1` and `R10` are high bandwidth, low latency links.
  * `AS65000` and `AS65010`, the two bigger networks, run OSPF inside, so that e.g. `R2` learns about the subnets that are used for the interconnects to the neighbour networks (to be able to resolve the the BGP next hop on `R2`).
  * `AS65020` is a smaller network, that has only a single gateway connecting it to the outside world. It's connected to both of the bigger networks with links that have a relatively lower bandwidth and higher latency. During the tutorial, we'll make adjustments to the configuration so `AS65020` can still reach both `AS65000` and `AS65010` when one of the external links is down.
  * Ah, and this time it's an IPv6 only example.
