@@ -54,7 +54,7 @@ The output of the commands should show that `R2` knows two different routes to `
 
 For traffic to `R20`, there's only one route shown from the viewpoint of `R2`, which is pointing to `R1`, since this is the only router in the local network that has a connection to the remote `AS65020`.
 
-## Redundancy and asymmetric traffic flows
+## Asymmetric traffic flows
 
 Since there are two active network paths between `AS65000` and `AS65010`, each of the networks is free to choose which connection to use to send traffic to the other network.
 
@@ -117,11 +117,13 @@ Introducing latency for test purposes can be done with the linux traffic control
     root@R1:/# tc qdisc add dev ebgp_r10 root netem delay 100ms
     root@R10:/# tc qdisc add dev ebgp_r1 root netem delay 100ms
 
-## Moving traffic around
+## Playing with redundant paths
 
-Having redundancy in the network has the advantage that the network can survive a partial outage, which can be either planned (maintenance) or unplanned (failure of a component).
+Having redundancy in the network has the advantage that the network can survive a partial outage, which can be either planned (maintenance) or unplanned (failure of a component):
 
 ![BGP network with an inactive path](/bgp-contd/bgp-redundancy-ibgp-r0-r1.png)
+
+### Moving around traffic
 
 By disabling the BGP session on `R0` towards `R11`, we can force traffic between `AS65000` and `AS65010` to choose the route over `R1` and `R10` instead:
 
@@ -163,6 +165,10 @@ Also, the bird6 log file in `/var/log/bird/bird6.log` shows that bird gets an up
     ibgp_r0 > removed [replaced] 2001:db8:10::/48 via fe80::4ef:8ff:fe02:cef6 on lan
     kernel1 < replaced 2001:db8:10::/48 via fe80::bc5d:a8ff:fee4:c062 on lan
 
+Note that shutting down a BGP session only will stop the exchange of routing information. The link itself is not disabled in this example. This means that if for whatever reason (like manual configuration of routes) traffic would arrive over this link, it would still happily be handled by the linux kernel.
+
+### Fixing iBGP
+
 As I said a little earlier, there is still some configuration missing, although we didn't spot it yet it seems. Well, if you try to reach any router in `AS65010` from `R0`, you will see it fail:
 
     root@R0:/# traceroute r11
@@ -180,19 +186,66 @@ In the BGP introduction tutorial, we learned that iBGP sessions are used to shar
 ### Assignments
 
 Now, do the following things:
- * Add iBGP configuration to share BGP routes between `R0` and `R1`, and also between `R10` and `R11`.
- * Check that you can reach every external network from every router in all of the three networks.
- * Try disabling some of the links between routers by using the `disable`/`enable` commands on the bird command line, or by changing the `import` and `export` rules in the `protocol bgp ebgp_r*` sections in `bird6.conf`, and check if you still can reach all parts of the network.
+ * Add iBGP configuration to share BGP routes between `R0` and `R1`, and also between `R10` and `R11`. Pay special attention to the `import` and `export` rules. Use e.g. `show route protocol ibgp_r0` on `R1` to verify that it's receiving information about external routes.
 
-## Redundancy for the branch office
+        bird> show route protocol ibgp_r0
+        2001:db8:10::/48   via fe80::4ef:8ff:fe02:cef6 on lan [ibgp_r0 23:24:03 from 2001:db8::ff] (100/20) [AS65010i]
+        bird> show route export ibgp_r0
+        2001:db8:20::/48   via 2001:db8:0:5::20 on ebgp_r20 [ebgp_r20 2015-11-28] * (100) [AS65020i]
+        2001:db8:10::/48   via 2001:db8:10:4::10 on ebgp_r10 [ebgp_r10 2015-11-28] * (100) [AS65010i]
+
+ * Check that you can reach every external network from every router in all of the three networks.
+ * Try disabling some of the links between routers by using the `disable`/`enable` commands on the bird command line, and check if you still can reach all parts of the network.
+ * Change `import` and `export` filters in the `protocol bgp ebgp_r*` sections in `bird6.conf` so that you end up with a situation where all traffic is forced into an asymmetric traffic pattern in which traffic from `AS65000` to `AS65010` has to leave via `R1` to `R10`, and traffic back flows over `R11` to `R0`. Verify the changes seen in bird `show route all` output when you change filters.
+
+## A closer look at the BIRD configuration
+
+Here's a picture of the tables and protocols used in the BIRD configuration of `R1`:
+
+![BIRD protocols, tables, import and export](/bgp-contd/bird-prototable.png)
+
+As you might have noticed, I prefer using multiple internal routing tables in BIRD in favor of less complex filters. Since we're dealing with a very limited number of routes it's not a problem at all that a lot of routes are duplicated in multiple tables.
+
+If you compare this drawing to the previous one from the BGP Introduction tutorial, you'll notice an extra table, in between the eBGP sessions and the master table. Here's the corresponding part from `bird6.conf`:
+
+    ##############################################################################
+    # BGP table
+    #
+
+    # Use this routing table to gather external routes received via BGP which we
+    # want push to the kernel via our master table and to other routers in our AS
+    # via iBGP or even to other routers outside our AS again (transit), which can
+    # be connected here or to a router elsewhere on the border of our AS.
+
+    table t_bgp;
+
+    protocol pipe p_master_to_bgp {
+        table master;
+        peer table t_bgp;
+        import all;  # default
+        export none;  # default
+    }
+
+eBGP sessions are connected to `t_bgp` via an intermediate table for their own, which is used to insert routes that are originated from our own AS that we want to announce to the other side. iBGP sessions are connected to the `t_bgp` directly, as they just need to share the collection of externally learned routes with routers inside the network.
+
+### Assignments
+
+ * Compare the drawing with the configuration file of `R1`.
+
+## Redundancy for the branch office: Transit traffic
+
+The following picture is the same as the one at the beginning of this page:
 
 ![BGP network with redundant paths](/bgp-contd/bgp-redundancy.png)
 
- * two connections, disable to R1, whoops, not reachable from AS65000 any more
- * would be nice to
+Until now, we have ignored the to network, with `R20` in it.
+
+ * two connections, disable `R20` -> `R11`, whoops, not reachable from AS65010 any more
+ * would be nice to be able to
+
+### Peering and Transit
 
 
-## Peering and Transit
 
  * Peering: simply the fact that two networks have an interconnect and exchange prefixes
  * Transit: announcing received routes again to another AS
