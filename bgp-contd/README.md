@@ -288,6 +288,7 @@ As seen above in the configuration diagram, the routers that connect to external
  * On `R1`, check `show route export ebgp_r10` and `show route export ebgp_r20`.
  * Adjust the other three routers in the same way: `R0`, `R10` and `R11`. Don't change `R20`, since we do not want `AS65020`, with its two slow low-bandwith links to be a transit area for traffic between `AS65000` and `AS65010`. Those two networks already have fast redundant links between them.
  * Enable the BGP session between `R11` and `R20` again, and notice that the routing immediately switches back to using this path.
+ * Disable the network path between `R1` and `R20`, and make sure you can still reach `R20` from `R2`.
 
 ### Extra assignment
 
@@ -295,7 +296,7 @@ Instead of disabling a whole BGP session between routers to stop using a particu
 
 ![BGP Transit fun asssignment](/bgp-contd/bgp-redundancy-transit2.png)
 
- * Without disabling any BGP session, change the configuration so that traffic flow between `R10` and `R20` is as shown in the picture above:
+ * Without disabling any BGP session, change the filters configuration so that traffic flow between `R10` and `R20` is as shown in the picture above:
 
         root@R10:/# traceroute r20
         traceroute to r20 (2001:db8:20::20), 30 hops max, 80 byte packets
@@ -309,10 +310,36 @@ Instead of disabling a whole BGP session between routers to stop using a particu
          1  ebgp_r20.r11 (2001:db8:10:6::11)  0.073 ms  0.019 ms  0.018 ms
          2  lo.r10 (2001:db8:10::10)  0.320 ms  0.268 ms  0.245 ms
 
+  * Notice that this is actually a stupid way to prefer specific routes for traffic, because by disabling BGP sessions or by not announcing or not accepting routes, we reduce redundancy in the network, because the disabled paths also do not function as less-preferable path any more. See BGP route selection below for more thoughts about this.
+
 ## Bonus material
 
- * ecmp
- * local preference (> AS path!)
- * med -> derive from next hop igp? also, potatoes
+Now you've learned the basics of building a network with BGP, you should be able to better understand the average "BGP introduction" page published on the Internet that immediately tries to overwhelm you with technical terms instead of just providing an example. ;-]
 
+The following topics are also a minimal set of hints for further study:
 
+### Peering and Transit
+
+In the above examples, we've already seen the difference between just connecting two networks so they can reach each other, and on top of that, forwarding route announcements, so that a network can act as transit area for traffic between two other networks. These concepts are called "Peering" and "Transit" and if you search for them, you should be able to find a lot more information.
+
+The next page of this tutorial, [Routing on the internet](/the-internet/README.md), will be about discovering the fact that with the limited knowledge we have now, it's already possible to understand how the whole internet works together. The page hasn't been written yet, but will show how networks of ISPs, Transit Providers and Internet Exchanges connect the whole world together and how you can find out using tools on the internet how they're connected, and how they provide a path between your own computer to every remote destination on the internet you're connecting to every day.
+
+### BGP route selection
+
+As hinted above ("Notice that this is actually a stupid way...") there are smarter ways to prefer specific network paths for specific routes than to just disable a path or stop accepting announcements. BGP has a bunch of knobs to adjust that you can combine to create a routing policy inside your own AS.
+
+In the BIRD documentation about BGP, you can find a list about "Route selection rules" that BIRD applies to select which BGP route to a particular destination will be chosen if multiple ones are available for the same prefix:
+
+ * Prefer route with the highest Local Preference attribute.
+ * Prefer route with the shortest AS path.
+ * Prefer IGP origin over EGP and EGP origin over incomplete.
+ * Prefer the lowest value of the Multiple Exit Discriminator.
+ * Prefer routes received via eBGP over ones received via iBGP.
+ * Prefer routes with lower internal distance to a boundary router.
+ * Prefer the route with the lowest value of router ID of the advertising router.
+
+Using other resources on the internet you should be able to find out what all of these mean. Using the BIRD documentation, you can change the configuration of all routers in our example network to route traffic around in different ways using these options.
+
+Within a single AS, it's really important to have a single policy, so that all routers are on the same page about where to send traffic. You cannot have two border routers, which independently from each other determine that the other one should be used as exit point to a specific external peer. They would pingpong all traffic between them until the IP packet TTL expires and then drop the traffic, resulting in a big black hole and a bunch of overloaded internal connections. So, yes, this can get quite complex quickly if you start to make customizations.
+
+Remember that we started this tutorial with an example network in which traffic between `AS65000` and `AS65010` was already using the two paths between them in an asymmetric way. Because the setup of both networks is so similar and mirrored, the fact that traffic back and forth flows asymmetrically is actually thanks to the last rule: "Prefer the route with the lowest value of router ID of the advertising router.". After initially setting up the example, I had to swap `R10` and `R11` again to get this behaviour. :-)
