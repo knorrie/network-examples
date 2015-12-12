@@ -310,7 +310,7 @@ Instead of disabling a whole BGP session between routers to stop using a particu
          1  ebgp_r20.r11 (2001:db8:10:6::11)  0.073 ms  0.019 ms  0.018 ms
          2  lo.r10 (2001:db8:10::10)  0.320 ms  0.268 ms  0.245 ms
 
-  * Notice that this is actually a stupid way to prefer specific routes for traffic, because by disabling BGP sessions or by not announcing or not accepting routes, we reduce redundancy in the network, because the disabled paths also do not function as less-preferable path any more. See BGP route selection below for more thoughts about this.
+ * Notice that this is actually a stupid way to prefer specific routes for traffic, because by disabling BGP sessions or by not announcing or not accepting routes, we reduce redundancy in the network, because the disabled paths also do not function as less-preferable path any more. See BGP route selection below for more thoughts about this.
 
 ## Bonus material
 
