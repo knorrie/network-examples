@@ -238,23 +238,78 @@ The following picture is the same as the one at the beginning of this page:
 
 ![BGP network with redundant paths](/bgp-contd/bgp-redundancy.png)
 
-Until now, we have ignored the to network, with `R20` in it.
+Until now, we have ignored the top network, with `R20` in it. Let's have a better look at this part now. `AS65020` is connected to both of the other networks with a single connection.
 
- * two connections, disable `R20` -> `R11`, whoops, not reachable from AS65010 any more
- * would be nice to be able to
+What would the result be for the connectivity of `AS65020` if one of those links would be down because of maintenance or a defect? We can do some tests to find out.
 
-### Peering and Transit
+First make sure you can reach `R20` from `R10`:
 
+    root@R10:/# traceroute r20
+    traceroute to r20 (2001:db8:20::20), 30 hops max, 80 byte packets
+     1  lan.r11 (2001:db8:10:2::11)  0.901 ms  0.883 ms  0.868 ms
+     2  lo.r20 (2001:db8:20::20)  0.897 ms  0.804 ms  0.803 ms
 
+Next, shut down eBGP between `R11` and `R20`, and see what happens...
 
- * Peering: simply the fact that two networks have an interconnect and exchange prefixes
- * Transit: announcing received routes again to another AS
+    root@R11:/# birdc6
+    BIRD 1.4.5 ready.
+    bird> disable ebgp_r20
+    ebgp_r20: disabled
 
- * by default BGP will choose the shortest AS path
+    root@R10:/# traceroute r20
+    traceroute to r20 (2001:db8:20::20), 30 hops max, 80 byte packets
+    connect: Network is unreachable
 
-## Assignments
+There's still an open network path to `R20`, via `R1`. But, `R10` is not aware of this, because the routers in `AS65000` do not tell the ones in `AS65010` that they also know a path to `R20`...
 
-## Bonus
+    root@R1:/# birdc6
+    BIRD 1.4.5 ready.
+    bird> show route table t_bgp
+    2001:db8:20::/48   via 2001:db8:0:5::20 on ebgp_r20 [ebgp_r20 20:47:42] * (100) [AS65020i]
+    2001:db8:10::/48   via 2001:db8:10:4::10 on ebgp_r10 [ebgp_r10 2015-11-28] * (100) [AS65010i]
+                       via fe80::4ef:8ff:fe02:cef6 on lan [ibgp_r0 2015-12-01 from 2001:db8::ff] (100/20) [AS65010i]
+    bird> show route export ebgp_r10
+    2001:db8::/48      blackhole [originate_to_r10 2015-11-28] * (200)
+
+As seen above in the configuration diagram, the routers that connect to external networks in `AS65000` and `AS65010` collect all external routes in their BIRD `t_bgp` table, so they can be sent over iBGP to the other routers in their network. However, as you can see in the `bird6.conf` configuration files of them, the routes in `t_bgp` are not exported again to external peers.
+
+### Assignments
+
+![BGP Transit](/bgp-contd/bgp-redundancy-transit1.png)
+
+ * Change the BIRD configuration of `R1` so that externally learned routes are exported again to other external networks. The routes are available in the `t_bgp` table, and can simply all be exported again towards `R10` and `R20`. Now check that you can already reach `R20` from `R10` with a traceroute, which means that `R20` also knows a path back to `R10` now:
+
+        root@R10:/# traceroute r20
+        traceroute to r20 (2001:db8:20::20), 30 hops max, 80 byte packets
+         1  ebgp_r10.r1 (2001:db8:10:4::1)  0.330 ms  0.317 ms  0.309 ms
+         2  lo.r20 (2001:db8:20::20)  0.441 ms  0.432 ms  0.405 ms
+
+ * In the logfiles in `/var/log/bird/bird6.log` on `R20`, `R1` and `R10` you should see that the extra routing information was received, and how bird processed the routes internally. Pay some attention to the 'ignored', 'filtered' and 'rejected by protocol' lines. They show that the defined filters are used, and they also show that bird will by default be clever about not pushing routes back through a pipe or protocol it just learned them from, which simplifies the filter definitions a lot, since we can just use 'all' for exporting from `t_bgp` to e.g. `t_r20`.
+ * On `R1`, check `show route export ebgp_r10` and `show route export ebgp_r20`.
+ * Adjust the other three routers in the same way: `R0`, `R10` and `R11`. Don't change `R20`, since we do not want `AS65020`, with its two slow low-bandwith links to be a transit area for traffic between `AS65000` and `AS65010`. Those two networks already have fast redundant links between them.
+ * Enable the BGP session between `R11` and `R20` again, and notice that the routing immediately switches back to using this path.
+
+### Extra assignment
+
+Instead of disabling a whole BGP session between routers to stop using a particular path, it's also possible to keep the BGP connection alive, and just stop originating prefixes or re-announcing them if we're a transit network, but still accept them from the remote or just the other way around. When doing so we can configure a situation with an asymmetric traffic flow.
+
+![BGP Transit fun asssignment](/bgp-contd/bgp-redundancy-transit2.png)
+
+ * Without disabling any BGP session, change the configuration so that traffic flow between `R10` and `R20` is as shown in the picture above:
+
+        root@R10:/# traceroute r20
+        traceroute to r20 (2001:db8:20::20), 30 hops max, 80 byte packets
+         1  lan.r11 (2001:db8:10:2::11)  0.068 ms  0.018 ms  0.016 ms
+         2  ebgp_r11.r0 (2001:db8:0:3::ff)  0.380 ms  0.356 ms  0.341 ms
+         3  ebgp_r10.r1 (2001:db8:10:4::1)  0.462 ms  0.458 ms  0.388 ms
+         4  lo.r20 (2001:db8:20::20)  0.401 ms  0.409 ms  0.435 ms
+
+        root@R20:/# traceroute r10
+        traceroute to r10 (2001:db8:10::10), 30 hops max, 80 byte packets
+         1  ebgp_r20.r11 (2001:db8:10:6::11)  0.073 ms  0.019 ms  0.018 ms
+         2  lo.r10 (2001:db8:10::10)  0.320 ms  0.268 ms  0.245 ms
+
+## Bonus material
 
  * ecmp
  * local preference (> AS path!)
