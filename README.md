@@ -9,7 +9,7 @@ You're a Linux server and network administrator for some years, have been buildi
 
 You know how to use the `iproute2` programs (`ip a`, `ip r`, etc) to set up your networking, and haven't typed the `ifconfig` or `route` commands in your terminal since 1999. You know how to debug problems using `tcpdump`, `traceroute` etc...
 
-But... your network doesn't show much redundancy. You're pointing a static route to your VPN tunnel to be able to reach the other side, and when you connect a third location, you're realizing that this way of working getting more and more painful.
+But... your network doesn't show much redundancy. You're pointing a static route to your VPN tunnel to be able to reach the other side, and when you connect a third location, you're realizing that this way of working is getting more and more painful.
 
 You're googling the interwebz for tutorials about an introduction to routing protocols, and discover that most of them start out with a huge amount of theoretical information, and then teach you how to configure Cisco equipment.
 
@@ -44,6 +44,7 @@ All test setups used in the tutorials are built using Linux, LXC and OpenvSwitch
 
  * Building a pair of stateful filtering IPv4 and IPv6 gateways that can fail over traffic to each other, using `keepalived` and `conntrackd`, while participating in OSPF.
  * Building a load balancer using LVS.
+ * Example showcases would be really nice. For example, visiting some IXP that uses BIRD as route server, and doing a writeup of what their network architecture looks like and the been-there-done-thats that they want to share.
  * ...
 
 ## Feedback, getting help
