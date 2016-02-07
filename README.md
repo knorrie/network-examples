@@ -44,6 +44,7 @@ All test setups used in the tutorials are built using Linux, LXC and OpenvSwitch
 
  * Building a pair of stateful filtering IPv4 and IPv6 gateways that can fail over traffic to each other, using `keepalived` and `conntrackd`, while participating in OSPF.
  * Building a load balancer using LVS.
+ * Example showcases would be really nice. For example, visiting some IXP that uses BIRD as route server, and doing a writeup of what their network architecture looks like and the been-there-done-thats that they want to share.
  * ...
 
 ## Feedback, getting help
