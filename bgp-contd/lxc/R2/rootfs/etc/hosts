@@ -1,0 +1,32 @@
+127.0.0.1	localhost
+::1		localhost ip6-localhost ip6-loopback
+ff02::1		ip6-allnodes
+ff02::2		ip6-allrouters
+
+2001:db8::ff       lo.r0 r0
+2001:db8:0:1::ff   lan.r0
+2001:db8:0:3::ff   ebgp_r11.r0
+
+2001:db8:10::10    lo.r10 r10
+2001:db8:10:2::10  lan.r10
+2001:db8:10:4::10  ebgp_r1.r10
+
+2001:db8:10::11    lo.r11 r11
+2001:db8:10:2::11  lan.r11
+2001:db8:0:3::11   ebgp_r0.r11
+2001:db8:10:6::11  ebgp_r20.r11
+
+2001:db8:10::12    lo.r12 r12
+2001:db8:10:2::12  lan.r12
+
+2001:db8::1        lo.r1 r1
+2001:db8:0:1::1    lan.r1
+2001:db8:10:4::1   ebgp_r10.r1
+2001:db8:0:5::1    ebgp_r20.r1
+
+2001:db8:20::20    lo.r20 r20
+2001:db8:0:5::20   ebgp_r1.r20
+2001:db8:10:6::20  ebgp_r11.r20
+
+2001:db8::2        lo.r2 r2
+2001:db8:0:1::2    lan.r2

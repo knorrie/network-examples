@@ -1,0 +1,25 @@
+auto lo
+iface lo inet loopback
+	up ip addr add 2001:db8::1/128 dev lo
+	down ip addr del 2001:db8::1/128 dev lo
+
+auto lan
+iface lan inet manual
+	up ip link set up dev lan
+	up ip addr add 2001:db8:0:1::1/120 dev lan
+	down ip addr del 2001:db8:0:1::1/120 dev lan
+	down ip link set down dev lan
+
+auto ebgp_r10
+iface ebgp_r10 inet manual
+	up ip link set up dev ebgp_r10
+	up ip addr add 2001:db8:10:4::1/120 dev ebgp_r10
+	down ip addr del 2001:db8:10:4::1/120 dev ebgp_r10
+	down ip link set down dev ebgp_r10
+
+auto ebgp_r20
+iface ebgp_r20 inet manual
+	up ip link set up dev ebgp_r20
+	up ip addr add 2001:db8:0:5::1/120 dev ebgp_r20
+	down ip addr del 2001:db8:0:5::1/120 dev ebgp_r20
+	down ip link set down dev ebgp_r20

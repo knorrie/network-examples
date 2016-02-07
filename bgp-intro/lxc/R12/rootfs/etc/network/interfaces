@@ -1,0 +1,24 @@
+auto lo
+iface lo inet loopback
+	up ip addr add 10.40.32.12/32 dev lo
+	up ip addr add 2001:db8:10:6::c dev lo
+	down ip addr del 2001:db8:10:6::c dev lo
+	down ip addr del 10.40.32.12/32 dev lo
+
+auto vlan36
+iface vlan36 inet manual
+	up ip link set up dev vlan36
+	up ip addr add 10.40.36.1/24 brd + dev vlan36
+	up ip addr add 2001:db8:10:24::1/120 dev vlan36
+	down ip addr del 2001:db8:10:24::1/120 dev vlan36
+	down ip addr del 10.40.36.1/24 dev vlan36
+	down up link set down dev vlan36
+
+auto vlan33
+iface vlan33 inet manual
+	up ip link set up dev vlan33
+	up ip addr add 10.40.33.3/26 brd + dev vlan33
+	up ip addr add 2001:db8:10:21::3/120 dev vlan33
+	down ip addr del 2001:db8:10:21::3/120 dev vlan33
+	down ip addr del 10.40.33.3/26 dev vlan33
+	down up link set down dev vlan33

@@ -1,0 +1,4 @@
+auto lo
+iface lo inet loopback
+	up ip addr add 10.9.99.1/32 dev lo
+	down ip addr del 10.9.99.1/32 dev lo

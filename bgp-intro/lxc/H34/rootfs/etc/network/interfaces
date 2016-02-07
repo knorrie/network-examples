@@ -1,0 +1,14 @@
+auto lo
+iface lo inet loopback
+
+auto vlan36
+iface vlan36 inet manual
+	up ip link set up dev vlan36
+	up ip addr add 10.40.36.34/24 brd + dev vlan36
+	up ip addr add 2001:db8:10:24::22/120 dev vlan36
+	up ip route add default via 10.40.36.1 dev vlan36
+	up ip route add default via 2001:db8:10:24::1 dev vlan36
+	down ip route -6 del default
+	down ip addr del 2001:db8:10:24::22/120 dev vlan36
+	down ip addr del 10.40.36.34/24 dev vlan36
+	down up link set down dev vlan36

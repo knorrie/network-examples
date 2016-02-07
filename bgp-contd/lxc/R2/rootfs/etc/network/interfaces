@@ -1,0 +1,11 @@
+auto lo
+iface lo inet loopback
+	up ip addr add 2001:db8::2/128 dev lo
+	down ip addr del 2001:db8::2/128 dev lo
+
+auto lan
+iface lan inet manual
+	up ip link set up dev lan
+	up ip addr add 2001:db8:0:1::2/120 dev lan
+	down ip addr del 2001:db8:0:1::2/120 dev lan
+	down ip link set down dev lan
