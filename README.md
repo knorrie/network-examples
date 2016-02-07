@@ -5,7 +5,7 @@ Welcome to my Linux Networking tutorials. The first part, learning two widely us
 
 ## Target audience
 
-You're a Linux server and network administrator for some years, have been building an office and/or colocation network with IPv4, IPv6, firewalls with IPTables, some stateful filtering (and NAT for IPv4). You've set up VPN tunnels between different locations to be able to reach the internal IPv4 network using RFC1918 addresses on the other side.
+You've been a Linux server and network administrator for some years, have been building an office and/or colocation network with IPv4, IPv6, firewalls with IPTables, some stateful filtering (and NAT for IPv4). You've set up VPN tunnels between different locations to be able to reach the internal IPv4 network using RFC1918 addresses on the other side.
 
 You know how to use the `iproute2` programs (`ip a`, `ip r`, etc) to set up your networking, and haven't typed the `ifconfig` or `route` commands in your terminal since 1999. You know how to debug problems using `tcpdump`, `traceroute` etc...
 
@@ -24,6 +24,8 @@ And, while BIRD (the routing software used in these turotials) has good referenc
 I hope that while following the tutorials, you're going to experience the "Wow!" moments, that "make the penny drop" and suddenly make you understand a lot more about complex networking topologies on the internet. Just reading the pages will not make that happen, setting up the examples and doing the assignments will.
 
 Depending on your current knowledge and experience, following the tutorials can take quite some time. This is normal. Don't skip pages or part of them, because when writing, I assume that everything told before is known already. Even though the tutorials are meant as an introduction, there's still already a huge amount of information hidden in them.
+
+Have fun!
 
 ## Getting up to speed setting up test environments
 
