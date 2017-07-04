@@ -19,7 +19,7 @@ You found out that there's helper software to make routing more dynamic, like BI
 
 There aren't a lot of tutorials that take a practical approach, ignoring most of the theory that's not yet needed to be known before just starting to explore the working of e.g. a routing protocol. In my opinion there is really no use in first of all learning that "a type 5 AS-external Link State Advertisement is not allowed in a Not So Stubby Area, unless it's a type 7 Link State Advertisement, that has been converted to a type 5 at an Area Border router, which makes it possible to traverse a..." whatever... :o)
 
-And, while BIRD (the routing software used in these turotials) has good reference documentation, it's missing tutorial-style documentation for new users. Even if you already know routing protocols, these tutorials should be a quick way to learn using BIRD and some of its quircks on Linux.
+And, while BIRD (the routing software used in these tutorials) has good reference documentation, it's missing tutorial-style documentation for new users. Even if you already know routing protocols, these tutorials should be a quick way to learn using BIRD and some of its quirks on Linux.
 
 I hope that while following the tutorials, you're going to experience the "Wow!" moments, that "make the penny drop" and suddenly make you understand a lot more about complex networking topologies on the internet. Just reading the pages will not make that happen, setting up the examples and doing the assignments will.
 
