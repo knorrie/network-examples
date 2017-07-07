@@ -1,6 +1,6 @@
 # Setting up a lab environment
 
-For the tutorials, I've chosen to use Debian GNU/Linux with lxc, btrfs and openvswitch and some extra git thrown at it to build simulations of complete networks. The current stable Debian Release, 8 (Jessie) already contains everything you need for this.
+For the tutorials, I've chosen to use Debian GNU/Linux with lxc, btrfs and openvswitch and some extra git thrown at it to build simulations of complete networks. The current stable Debian Release, 9 (Stretch) already contains everything you need for this.
 
 So, make sure you get your hands on an empty physical or virtual machine. The one I use is a standard Debian x86-64 (a.k.a. amd64) virtual machine.
 
@@ -267,7 +267,7 @@ Since there is no separate syslog process in the container, create a directory w
     root@birdbase:/# true > /var/log/bird/bird.log; chown bird: /var/log/bird/bird.log
     root@birdbase:/# true > /var/log/bird/bird6.log; chown bird: /var/log/bird/bird6.log
 
-The creation of the log file is necessary to work around a bug in the Debian packaging, that causes the logfile to be created with root as owner, and subsequent causes bird startup to fail because it cannot write to the log file as user bird. :-(
+The creation of the log file is necessary to work around a bug in the Debian packaging, that causes the logfile to be created with root as owner, and subsequent causes bird startup to fail because it cannot write to the logfile as user bird. :-(
 
 ### IP forwarding
 
