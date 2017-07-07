@@ -16,7 +16,7 @@ In the picture, we see three networks, which are connected by several links that
 
 ## Setting up the example network
 
-Well, you known the drill. :-)
+Well, you know the drill. :-)
 
 Thankfully, most of the configuration is provided already, so we can quickly set up this whole network using our LXC environment. Just like in the previous tutorials, the birdbase container can be cloned, after which the lxc network information and configuration inside the containers can be copied into them.
 
@@ -294,7 +294,7 @@ As seen above in the configuration diagram, the routers that connect to external
 
 Instead of disabling a whole BGP session between routers to stop using a particular path, it's also possible to keep the BGP connection alive, and just stop originating prefixes or re-announcing them if we're a transit network, but still accept them from the remote or just the other way around. When doing so we can configure a situation with an asymmetric traffic flow.
 
-![BGP Transit fun asssignment](/bgp-contd/bgp-redundancy-transit2.png)
+![BGP Transit fun assignment](/bgp-contd/bgp-redundancy-transit2.png)
 
  * Without disabling any BGP session, change the filters configuration so that traffic flow between `R10` and `R20` is as shown in the picture above:
 
