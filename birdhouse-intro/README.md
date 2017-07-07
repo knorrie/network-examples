@@ -10,7 +10,7 @@ Well, there it is... The Birdhouse Factory network:
 
 ![Birdhouse Network](/birdhouse-intro/birdhouse-intro.png)
 
-The Birdhouse Factory is a fictional company that manufactures little wooden birdhouses. Besides their manufactoring process and the warehouse, they have an office where accounting and sales people work.
+The Birdhouse Factory is a fictional company that manufactures little wooden birdhouses. Besides their manufacturing process and the warehouse, they have an office where accounting and sales people work.
 
 Since the Birdhouse Factory people also like internet technology, they combined these interests and run their own webshop where you can buy birdhouses online, and their own mail server. The Factory has some IPv4 space allocated from an ISP, where they run their servers, and where they have a NAT router in front of their office network, which uses RFC1918 IPv4 network ranges.
 
