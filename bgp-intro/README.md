@@ -301,7 +301,7 @@ Table `t_r3` now also contains the routes that are learned from `AS64080`:
     10.40.32.0/19      blackhole [originate_to_r3 00:48:27] * (200)
     10.40.0.0/22       via 10.40.217.17 on vlan217 [ebgp_r3 00:48:32] * (100) [AS64080i]
 
-The above shows for example that prefix `10.40.216.0/21` was learned via the protocol `ebgp_r3`, 48 minutes ago, and that the range is originating from `AS64080`. The `via 10.40.217.17` is the BGP next-hop, which is the first router _outside_ our own network.
+The above shows for example that prefix `10.40.216.0/21` was learned via the protocol `ebgp_r3`, at 00:48 AM, and that the range is originating from `AS64080`. The `via 10.40.217.17` is the BGP next-hop, which is the first router _outside_ our own network.
 
 The BIRD master routing table also contains the routes learned over BGP, thanks to the `p_master_to_r3` protocol:
 
