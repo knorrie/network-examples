@@ -36,9 +36,9 @@ To discover which routers can directly see each other, the following is being do
  * Send out Hello! packets, describing themselves (containing, most importantly, their Router ID) on all interfaces that actively participate in the OSPF network (so all non-stub interfaces).
  * Listen for Hello! packets from other routers, to learn who else is active out there.
 
-![OSPF network with discovered neigbours](/ospf-intro/ospf-neighbours.png)
+![OSPF network with discovered neighbours](/ospf-intro/ospf-neighbours.png)
 
-Now, the upper part of the network contains three routers which know they are neigbours, as does the lower part. But, router 2 and 6 do not know about each others existence yet.
+Now, the upper part of the network contains three routers which know they are neighbours, as does the lower part. But, router 2 and 6 do not know about each other's existence yet.
 
 ### Discovering the full network topology
 
@@ -47,7 +47,7 @@ To discover the full topology of the network, the following happens:
  * Receive the same information from neighbour routers.
  * When an information card of a router arrives, store it, and send it out again on all other interfaces that are not a stub, unless the information of this particular router was already received before.
 
-And magically... After a short burst of network traffic, all routers have now received each other's information, and are in possesion of the four cards with information. Now that each router has all information about the other ones, let's see what happens when we simply connect the information about the four different routers together, turning the shared subnet ranges into a subnet between the routers:
+And magically... After a short burst of network traffic, all routers have now received each other's information, and are in possession of the four cards with information. Now that each router has all information about the other ones, let's see what happens when we simply connect the information about the four different routers together, turning the shared subnet ranges into a subnet between the routers:
 
 ![OSPF network, joined together](/ospf-intro/ospf-together.png)
 
@@ -60,7 +60,7 @@ Now that each router has gathered enough information to assemble a complete deta
 While each router can determine the complete shortest path to any destination in the network, it might sound quite disappointing to know that most of this valuable information can not be used by any individual router to get an IP packet to its destination.
 
  * First of all, the routing software (for which BIRD will be used in these tutorials) is not in charge of the forwarding of packets itself (which is done by the Linux kernel in these examples). This difference is well known as the difference between a "Control Plane" and a "Forwarding Plane", which have nothing to do with aircrafts.
- * The routing sofware (control plane) has to program the kernel (forwarding plane) with a next hop router for each existing subnet in the network, and it can not provide more information than just that next hop, which has to be in a directly connected subnet. So the OSPF routing process knows much more about the path that the to be forwarded packet will travel than it is able to tell the forwarding path.
+ * The routing software (control plane) has to program the kernel (forwarding plane) with a next hop router for each existing subnet in the network, and it can not provide more information than just that next hop, which has to be in a directly connected subnet. So the OSPF routing process knows much more about the path that the to be forwarded packet will travel than it is able to tell the forwarding path.
 
 And why shouldn't we care too much about all of this? The fun part here is that each of the participating routers in the OSPF network knows exactly the same amount of information about the whole network topology, and uses the same way to calculate the shortest routes from itself to all subnets that exist in the network. So, it's not a problem at all that the OSPF process on R2 can only tell the linux kernel to forward packets for `10.34.2.89` to a next hop of `10.1.2.56`, because it can trust on the fact that R5 will always forward them again to `10.0.1.8`, having R6 receive them, which will drop them into the connected subnet to reach the end host in there.
 
@@ -202,7 +202,7 @@ As you have seen above, all of the routers currently only see their connected su
 
 Well, actually it's still empty now. :-)
 
-birdc is a little program which connects to a running BIRD process for diagnostics and like manupulation of the running protocols, like disabling or enabling them:
+birdc is a little program which connects to a running BIRD process for diagnostics and like manipulation of the running protocols, like disabling or enabling them:
 
     root@R1:/# birdc
     BIRD 1.4.5 ready.
@@ -366,13 +366,13 @@ The second thing I want to point out is about the /32 addresses on the loopback 
 
 ## Next...
 
-There are numerous pages with information about OSPF on the internet. Since I could not really find one of them that did not directly deep-dive into 100s of pages of concepts like different type of LSAs, DR, BDR, Areas, and a lot of other complex things instead of just showing that a bunch of routers can talk to each other, I created this tutorial to prove routing protocols are fun, and to encourage you to have fun building networks. :-)
+There are numerous pages with information about OSPF on the internet. Since I couldn't really find one of them that did not directly deep-dive into 100s of pages of concepts like different type of LSAs, DR, BDR, Areas, and a lot of other complex things instead of just showing that a bunch of routers can talk to each other, I created this tutorial to prove routing protocols are fun, and to encourage you to have fun building networks. :-)
 
 First of all, don't forget to take a look at the BIRD documentation about OSPF. You can find it at User's guide -> Protocols -> OSPF at the [BIRD web page](http://bird.network.cz/). There's a lot more options than "stub". :) While I just proved you don't need to know about them to set up an interesting network with dynamic routing, there must be scenarios in which they can be very useful. For example:
  * If there are untrusted hosts inside your routing vlans, you might want to use password authentication.
  * If you want to decrease the time until the network gets reconfigured when a router crashes without notifying anyone, you might want to play with hello timers, or even bfd.
  * Equal cost multipath routing (ECMP) is a big thing nowadays, which is used a lot to load balance traffic over multiple paths to a destination instead of choosing only one as best path. You can even enable that in the network we just built by just specifying `ecmp yes` in the OSPF configuration (try it on R2 or R6) and see what effect it has on the output of `ip r` on the linux command line. Just search for information on it on the Internet to learn more.
- * 'Cost' is an aspect that is fundamental to OSPF and the calculation of the shortest paths in the network. Traditionally, cost is related to the bandwith of a link between routers, and causes higher bandwith connections to be prefered above lower bandwith connections. Since we're working with switched Gigabit/s networks by default now, if it's not 10Gb/s, in the datacenter and even in our office, I've just been ignoring that.
+ * 'Cost' is an aspect that is fundamental to OSPF and the calculation of the shortest paths in the network. Traditionally, cost is related to the bandwidth of a link between routers, and causes higher bandwidth connections to be prefered above lower bandwidth connections. Since we're working with switched Gigabit/s networks by default now, if it's not 10Gb/s, in the datacenter and even in our office, I've just been ignoring that.
 
 Another thing you can play with is rolling out IPv6 on this little network that was just built. It needs a `bird6.conf` configuration file, and you'll soon find out doing IPv6 is very similar to what we did here with IPv4. Just pick some subnets from the `2001:db8::/32` network to work with and there you go.
 

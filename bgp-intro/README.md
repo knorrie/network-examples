@@ -301,7 +301,7 @@ Table `t_r3` now also contains the routes that are learned from `AS64080`:
     10.40.32.0/19      blackhole [originate_to_r3 00:48:27] * (200)
     10.40.0.0/22       via 10.40.217.17 on vlan217 [ebgp_r3 00:48:32] * (100) [AS64080i]
 
-The above shows for example that prefix `10.40.216.0/21` was learned via the protocol `ebgp_r3`, 48 minutes ago, and that the range is originating from `AS64080`. The `via 10.40.217.17` is the BGP next-hop, which is the first router _outside_ our own network.
+The above shows for example that prefix `10.40.216.0/21` was learned via the protocol `ebgp_r3`, at 00:48 AM, and that the range is originating from `AS64080`. The `via 10.40.217.17` is the BGP next-hop, which is the first router _outside_ our own network.
 
 The BIRD master routing table also contains the routes learned over BGP, thanks to the `p_master_to_r3` protocol:
 
@@ -518,7 +518,7 @@ While using OSPF to transport the routes to the other internal routes might work
 
 ### The usage of loopback addresses
 
-It might have occured to you that the iBGP BIRD configuration specifies the local and remote address using loopback addresses instead of interface addresses from an actual connected subnet. Think back of the "The loopback address" section of the OSPF tutorial! The BGP router on the edge of the network, and the internal router which wants to learn about external connectivity using iBGP can be anywhere in the internal network. There may even exist multiple possible paths between them. By using a loopback address as source and target of the iBGP connection, the connection will keep functioning as long as there is any possible path between the two routers. The flow of traffic to the external network will follow the same directions as the iBGP control connection, since both of them use the IGP to reach each other.
+It might have occurred to you that the iBGP BIRD configuration specifies the local and remote address using loopback addresses instead of interface addresses from an actual connected subnet. Think back of the "The loopback address" section of the OSPF tutorial! The BGP router on the edge of the network, and the internal router which wants to learn about external connectivity using iBGP can be anywhere in the internal network. There may even exist multiple possible paths between them. By using a loopback address as source and target of the iBGP connection, the connection will keep functioning as long as there is any possible path between the two routers. The flow of traffic to the external network will follow the same directions as the iBGP control connection, since both of them use the IGP to reach each other.
 
 ![iBGP relying on the IGP](/bgp-intro/ibgp-loopback.png)
 
