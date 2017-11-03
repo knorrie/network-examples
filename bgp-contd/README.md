@@ -20,16 +20,23 @@ Well, you know the drill. :-)
 
 Thankfully, most of the configuration is provided already, so we can quickly set up this whole network using our LXC environment. Just like in the previous tutorials, the birdbase container can be cloned, after which the lxc network information and configuration inside the containers can be copied into them.
 
- 1. Clone this git repository somewhere to be able to use some files from the bgp-contd/lxc/ directory inside.
+ 1. Clone this git repository somewhere to be able to use some files from the bgp-contd/lxc/ directory inside:
+
+        cd ~
+        git clone https://github.com/knorrie/network-examples.git
+
  2. lxc-copy the birdbase container several times:
 
         for router in 0 1 2 10 11 12 20; do lxc-copy -s -n birdbase -N R$router; done
 
  3. Set up the network interfaces in the lxc configuration. This can be done by removing all network related configuration that remains from the cloned birdbase container, and then appending all needed interface configuration by running the fixnetwork.sh script that can be found in `bgp-contd/lxc/` in this git repository. Of course, have a look at the contents of the script first, before executing it.
 
-        . ./fixnetwork.sh
+        cd /var/lib/lxc
+        ~/network-examples/bgp-contd/lxc/fixnetwork.sh
 
- 4. Copy extra configuration into the containers. The bgp-intro/lxc/ directory inside this git repository contains a little file hierarchy that can just be copied over the configuration of the containers. For each router, it's a network/interfaces configuration file which adds an IP address that corresponds with the Router ID to the loopback interface, and a simple BIRD configuration file that serves as a starting point for our next steps.
+ 4. Copy extra configuration into the containers. The bgp-contd/lxc/ directory inside this git repository contains a little file hierarchy that can just be copied over the configuration of the containers. For each router, it's a network/interfaces configuration file whcih adds an IP address that corresponds with the Router ID to the loopback interface, and a simple BIRD configuration file that serves as a starting point for our next steps:
+
+        cp ~/network-examples/bgp-contd/lxc/[RH]* . -r
 
  5. Start all containers
 
