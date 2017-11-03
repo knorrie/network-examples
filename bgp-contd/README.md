@@ -21,9 +21,9 @@ Well, you know the drill. :-)
 Thankfully, most of the configuration is provided already, so we can quickly set up this whole network using our LXC environment. Just like in the previous tutorials, the birdbase container can be cloned, after which the lxc network information and configuration inside the containers can be copied into them.
 
  1. Clone this git repository somewhere to be able to use some files from the bgp-contd/lxc/ directory inside.
- 2. lxc-clone the birdbase container several times:
+ 2. lxc-copy the birdbase container several times:
 
-        for router in 0 1 2 10 11 12 20; do lxc-clone -s birdbase R$router; done
+        for router in 0 1 2 10 11 12 20; do lxc-copy -s -n birdbase -N R$router; done
 
  3. Set up the network interfaces in the lxc configuration. This can be done by removing all network related configuration that remains from the cloned birdbase container, and then appending all needed interface configuration by running the fixnetwork.sh script that can be found in `bgp-contd/lxc/` in this git repository. Of course, have a look at the contents of the script first, before executing it.
 

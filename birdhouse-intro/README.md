@@ -28,10 +28,8 @@ Heh, `lxc-ls` is not that clever, and also thinks my git repository is a contain
 
 Let's create some of the systems shown in the network picture:
 
-    lxcbird:/var/lib/lxc 0-# lxc-clone -s birdbase sparrow
-    Created container sparrow as snapshot of birdbase
-    lxcbird:/var/lib/lxc 0-# lxc-clone -s birdbase weaver
-    Created container weaver as snapshot of birdbase
+    lxcbird:/var/lib/lxc 0-# lxc-copy -s -n birdbase -N sparrow
+    lxcbird:/var/lib/lxc 0-# lxc-copy -s -n birdbase -N weaver
 
 Now we need to configure the network interfaces and add a little iptables ruleset for the NAT gateway.
 
