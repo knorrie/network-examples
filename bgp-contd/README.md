@@ -201,7 +201,7 @@ Now, do the following things:
         2001:db8:20::/48   via 2001:db8:0:5::20 on ebgp_r20 [ebgp_r20 2015-11-28] * (100) [AS65020i]
         2001:db8:10::/48   via 2001:db8:10:4::10 on ebgp_r10 [ebgp_r10 2015-11-28] * (100) [AS65010i]
 
- * Check that you can reach every external network from every router in all of the three networks.
+ * Check that you can reach every external network from every router in all of the three networks. You can use the script `bgp-contd/lxc/check_connectivity.sh` to check that every router can ping any other router.
  * Try disabling some of the links between routers by using the `disable`/`enable` commands on the bird command line, and check if you still can reach all parts of the network.
  * Change `import` and `export` filters in the `protocol bgp ebgp_r*` sections in `bird6.conf` so that you end up with a situation where all traffic is forced into an asymmetric traffic pattern in which traffic from `AS65000` to `AS65010` has to leave via `R1` to `R10`, and traffic back flows over `R11` to `R0`. Verify the changes seen in bird `show route all` output when you change filters.
 
