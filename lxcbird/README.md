@@ -120,7 +120,7 @@ Now make sure your `.gitignore` looks like this, to include only very specific f
 
 Here's an example to create a first container, which we'll configure a bit and use as a template to clone all other containers from.
 
-    lxcbird:/var/lib/lxc 0-# MIRROR=http://ftp.nl.debian.org/debian lxc-create -t debian -B btrfs -n birdbase -- -r jessie
+    lxcbird:/var/lib/lxc 0-# MIRROR=http://ftp.nl.debian.org/debian lxc-create -t debian -B btrfs -n birdbase -- -r stretch
 
 ### Configure the network and openvswitch up/down script
 
