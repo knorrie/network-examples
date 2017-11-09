@@ -224,7 +224,7 @@ Oh, there's our first problem... it's still a bit too basic :)
 
 The fact that we can do this already proves networking is set up right!
 
-    root@birdbase:/# ping -n -c 3 knorrie.org
+    root@birdbase:/# ping4 -n -c 3 knorrie.org
     PING knorrie.org (82.94.188.77) 56(84) bytes of data.
     64 bytes from 82.94.188.77: icmp_seq=1 ttl=54 time=6.64 ms
     64 bytes from 82.94.188.77: icmp_seq=2 ttl=54 time=5.12 ms
