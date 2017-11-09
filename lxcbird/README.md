@@ -245,27 +245,14 @@ The fact that we can do this already proves networking is set up right!
 
 And now ping confirms it. Both IPv4 and IPv6 masquerading works.
 
-### BIRD auto start
-
-Now, enable starting bird, since for some reason this is not automatically done when installing it:
-
-    root@birdbase:/# systemctl enable bird
-    Synchronizing state for bird.service with sysvinit using update-rc.d...
-    Executing /usr/sbin/update-rc.d bird defaults
-    Executing /usr/sbin/update-rc.d bird enable
-    root@birdbase:/# systemctl enable bird6
-    Synchronizing state for bird6.service with sysvinit using update-rc.d...
-    Executing /usr/sbin/update-rc.d bird6 defaults
-    Executing /usr/sbin/update-rc.d bird6 enable
-
 ### BIRD logfile location
 
 Since there is no separate syslog process in the container, create a directory where we can point logging configuration to later:
 
     root@birdbase:/# mkdir /var/log/bird
     root@birdbase:/# chown bird: /var/log/bird
-    root@birdbase:/# true > /var/log/bird/bird.log; chown bird: /var/log/bird/bird.log
-    root@birdbase:/# true > /var/log/bird/bird6.log; chown bird: /var/log/bird/bird6.log
+    root@birdbase:/# > /var/log/bird/bird.log; chown bird: /var/log/bird/bird.log
+    root@birdbase:/# > /var/log/bird/bird6.log; chown bird: /var/log/bird/bird6.log
 
 The creation of the log file is necessary to work around a bug in the Debian packaging, that causes the logfile to be created with root as owner, and subsequent causes bird startup to fail because it cannot write to the logfile as user bird. :-(
 
@@ -293,9 +280,9 @@ Before the birdbase container is ready as a template to be used for cloning othe
     lxcbird:/var/lib/lxc 1-# lxc-stop -n birdbase
 
     lxcbird:/var/lib/lxc 1-# sed -i /^lxc.network/d birdbase/config
-    lxcbird:/var/lib/lxc 1-# /bin/true > birdbase/rootfs/etc/bird/bird.conf
-    lxcbird:/var/lib/lxc 1-# /bin/true > birdbase/rootfs/etc/bird/bird6.conf
-    lxcbird:/var/lib/lxc 1-# /bin/true > birdbase/rootfs/etc/network/interfaces
+    lxcbird:/var/lib/lxc 1-# > birdbase/rootfs/etc/bird/bird.conf
+    lxcbird:/var/lib/lxc 1-# > birdbase/rootfs/etc/bird/bird6.conf
+    lxcbird:/var/lib/lxc 1-# > birdbase/rootfs/etc/network/interfaces
 
 Finally, we can check that git only wants to store our bird and network configuration, and do so:
 
