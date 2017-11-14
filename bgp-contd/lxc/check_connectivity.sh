@@ -9,8 +9,8 @@ do
 		if [ $? -ne 0 ]
 		then
 			echo "[FAIL] R$src -> R$dst"
-		#else
-		#	echo "[OK] R$src -> R$dst"
+		else
+			echo "[OK] R$src -> R$dst"
 		fi
 	done
 done
