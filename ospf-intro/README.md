@@ -82,23 +82,30 @@ Let's build some containers! If you don't have [a lab environment](/lxcbird/READ
 
 To create the eight containers we need, connected together in different networks, the following steps are needed:
 
- 1. Clone this git repository somewhere to be able to use some files from the ospf-intro/lxc/ directory inside.
- 2. lxc-clone the birdbase container several times:
+1. Clone this git repository somewhere to be able to use some files from the ospf-intro/lxc/ directory inside:
 
-        lxc-clone -s birdbase R1
-        lxc-clone -s birdbase R2
-        lxc-clone -s birdbase R5
-        lxc-clone -s birdbase R6
-        lxc-clone -s birdbase H12
-        lxc-clone -s birdbase H10
-        lxc-clone -s birdbase H8
-        lxc-clone -s birdbase H5
+        cd ~
+        git clone https://github.com/knorrie/network-examples.git
+
+2. lxc-copy the birdbase container several times:
+
+        lxc-copy -s -n birdbase -N R1
+        lxc-copy -s -n birdbase -N R2
+        lxc-copy -s -n birdbase -N R5
+        lxc-copy -s -n birdbase -N R6
+        lxc-copy -s -n birdbase -N H12
+        lxc-copy -s -n birdbase -N H10
+        lxc-copy -s -n birdbase -N H8
+        lxc-copy -s -n birdbase -N H5
 
  3. Set up the network interfaces in the lxc configuration. This can be done by removing all network related configuration that remains from the cloned birdbase container, and then appending all needed interface configuration by running the fixnetwork.sh script that can be found in `ospf-intro/lxc/` in this git repository. Of course, have a look at the contents of the script first, before executing it. Since this example is only using IPv4 and single IP addresses on the interfaces, I simply added them to the lxc configuration instead of the network/interfaces file inside the container.
 
-        . ./fixnetwork.sh
+        cd /var/lib/lxc
+        /bin/bash ~/network-examples/ospf-intro/lxc/fixnetwork.sh
 
  4. Copy extra configuration into the containers. The ospf-intro/lxc/ directory inside this git repository contains a little file hierarchy that can just be copied over the configuration of the containers. For each router, it's a network/interfaces configuration file which adds an IP address that corresponds with the Router ID to the loopback interface, and a simple BIRD configuration file that serves as a starting point for our next steps.
+
+        cp ~/network-examples/ospf-intro/lxc/R* . -r
 
  5. Start all containers
 
