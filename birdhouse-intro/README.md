@@ -37,18 +37,18 @@ Now we need to configure the network interfaces and add a little iptables rulese
 
 Sparrow has two interfaces, one in vlan10, the network to run public services, and vlan60, the office network. In `sparrow/config`, network interfaces are defined:
 
-    lxc.network.type = veth
-    lxc.network.name = vlan10
-    lxc.network.veth.pair = sparrow.10
-    lxc.network.script.up = /etc/lxc/lxc-openvswitch
-    lxc.network.script.down = /etc/lxc/lxc-openvswitch
-    lxc.network.hwaddr = 02:00:c6:33:64:13
-    lxc.network.type = veth
-    lxc.network.name = vlan60
-    lxc.network.veth.pair = sparrow.60
-    lxc.network.script.up = /etc/lxc/lxc-openvswitch
-    lxc.network.script.down = /etc/lxc/lxc-openvswitch
-    lxc.network.hwaddr = 02:00:0a:01:3c:01
+    lxc.net.0.type = veth
+    lxc.net.0.name = vlan10
+    lxc.net.0.veth.pair = sparrow.10
+    lxc.net.0.script.up = /etc/lxc/lxc-openvswitch
+    lxc.net.0.script.down = /etc/lxc/lxc-openvswitch
+    lxc.net.0.hwaddr = 02:00:c6:33:64:13
+    lxc.net.1.type = veth
+    lxc.net.1.name = vlan60
+    lxc.net.1.veth.pair = sparrow.60
+    lxc.net.1.script.up = /etc/lxc/lxc-openvswitch
+    lxc.net.1.script.down = /etc/lxc/lxc-openvswitch
+    lxc.net.1.hwaddr = 02:00:0a:01:3c:01
 
 And they're configured with addresses in `sparrow/rootfs/etc/network/interfaces`:
 
@@ -83,12 +83,12 @@ Now, start the container with `lxc-start -d -n sparrow` and get a command prompt
 
 Weaver is a bit simpler, since it's just an end host with one network interface. For `weaver/config`:
 
-    lxc.network.type = veth
-    lxc.network.name = vlan60
-    lxc.network.veth.pair = weaver.60
-    lxc.network.script.up = /etc/lxc/lxc-openvswitch
-    lxc.network.script.down = /etc/lxc/lxc-openvswitch
-    lxc.network.hwaddr = 02:00:0a:01:3c:15
+    lxc.net.0.type = veth
+    lxc.net.0.name = vlan60
+    lxc.net.0.veth.pair = weaver.60
+    lxc.net.0.script.up = /etc/lxc/lxc-openvswitch
+    lxc.net.0.script.down = /etc/lxc/lxc-openvswitch
+    lxc.net.0.hwaddr = 02:00:0a:01:3c:15
 
 And `weaver/rootfs/etc/network/interfaces`:
 
