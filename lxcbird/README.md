@@ -128,16 +128,16 @@ In `birdbase/config`, lxc-create has put some basic configuration. The networkin
 
 In the config file, instead of...
 
-    lxc.network.type = empty
+    lxc.net.0..type = empty
 
 ...it should look more like this...
 
-    lxc.network.type = veth
-    lxc.network.name = vlan10
-    lxc.network.veth.pair = birdbase.10
-    lxc.network.flags = up
-    lxc.network.script.up = /etc/lxc/lxc-openvswitch
-    lxc.network.script.down = /etc/lxc/lxc-openvswitch
+    lxc.net.0.type = veth
+    lxc.net.0.name = vlan10
+    lxc.net.0.veth.pair = birdbase.10
+    lxc.net.0.flags = up
+    lxc.net.0.script.up = /etc/lxc/lxc-openvswitch
+    lxc.net.0.script.down = /etc/lxc/lxc-openvswitch
 
 ...oh, and by the way, the lxc network script referenced is a really simple script to integrate lxc with openvswitch, which simply attaches an interface in the container to a vlan inside openvswitch based on the number after the dot. It has to be present on the host system, not in the container:
 
@@ -279,7 +279,7 @@ Before the birdbase container is ready as a template to be used for cloning othe
 
     lxcbird:/var/lib/lxc 1-# lxc-stop -n birdbase
 
-    lxcbird:/var/lib/lxc 1-# sed -i /^lxc.network/d birdbase/config
+    lxcbird:/var/lib/lxc 1-# sed -i /^lxc.net/d birdbase/config
     lxcbird:/var/lib/lxc 1-# > birdbase/rootfs/etc/bird/bird.conf
     lxcbird:/var/lib/lxc 1-# > birdbase/rootfs/etc/bird/bird6.conf
     lxcbird:/var/lib/lxc 1-# > birdbase/rootfs/etc/network/interfaces
