@@ -17,7 +17,7 @@ Here's a simple schematic overview of what I mean:
 
 To be able to create containers and hook up their network interfaces to openvswitch, we need the following packages:
 
-    apt-get install lxc debootstrap openvswitch-switch git
+    apt-get install lxc lxc-templates debootstrap openvswitch-switch git
 
 ## Setting up networking
 
