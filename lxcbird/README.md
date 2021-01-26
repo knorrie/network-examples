@@ -43,6 +43,7 @@ Here's the `/etc/network/interfaces` of my lxc host, well, almost, since I repla
 
     allow-ovs ovs0
     iface ovs0 inet manual
+        pre-up ovs-vsctl -- --if-exists del-br ovs0
         pre-up ovs-vsctl add-br ovs0
         up ip link set up dev ovs0
         down ip link set down dev ovs0
