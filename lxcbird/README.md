@@ -1,6 +1,6 @@
 # Setting up a lab environment
 
-For the tutorials, I've chosen to use Debian GNU/Linux with lxc, btrfs and openvswitch and some extra git thrown at it to build simulations of complete networks. The current stable Debian Release, 9 (Stretch) already contains everything you need for this.
+For the tutorials, I've chosen to use Debian GNU/Linux with lxc, btrfs and openvswitch and some extra git thrown at it to build simulations of complete networks. The current stable Debian Release, 10 (Buster) already contains everything you need for this.
 
 So, make sure you get your hands on an empty physical or virtual machine. The one I use is a standard Debian x86-64 (a.k.a. amd64) virtual machine.
 
@@ -120,7 +120,7 @@ Now make sure your `.gitignore` looks like this, to include only very specific f
 
 Here's an example to create a first container, which we'll configure a bit and use as a template to clone all other containers from.
 
-    lxcbird:/var/lib/lxc 0-# MIRROR=http://ftp.nl.debian.org/debian lxc-create -t debian -B btrfs -n birdbase -- -r stretch
+    lxcbird:/var/lib/lxc 0-# MIRROR=http://ftp.nl.debian.org/debian lxc-create -t debian -B btrfs -n birdbase -- -r buster
 
 ### Configure the network and openvswitch up/down script
 
