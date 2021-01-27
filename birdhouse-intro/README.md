@@ -19,12 +19,8 @@ Since the Birdhouse Factory people also like internet technology, they combined 
 After following the [tutorial to set up a lab environment](/lxcbird/README.md) we end up with the first container, "birdbase". Make sure this birdbase container is stopped (by using `lxc-stop`, or typing `halt` on the container prompt after using `lxc-attach`), so it can be cloned into new ones.
 
     lxcbird:/var/lib/lxc 0-# lxc-ls --fancy
-    NAME      STATE    IPV4  IPV6  AUTOSTART
-    ----------------------------------------
-    .git      STOPPED  -     -     NO
-    birdbase  STOPPED  -     -     NO
-
-Heh, `lxc-ls` is not that clever, and also thinks my git repository is a container. Oh well...
+    NAME     STATE   AUTOSTART GROUPS IPV4 IPV6 UNPRIVILEGED
+    birdbase STOPPED 0         -      -    -    false
 
 Let's create some of the systems shown in the network picture:
 

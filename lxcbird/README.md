@@ -194,19 +194,19 @@ Now, let's try to start it and see what happens!
     lxcbird:/var/lib/lxc/birdbase 0-# lxc-attach -n birdbase
     root@birdbase:/# 
     root@birdbase:/# ip a
-    1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default 
+    1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
         link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
         inet 127.0.0.1/8 scope host lo
            valid_lft forever preferred_lft forever
         inet6 ::1/128 scope host 
            valid_lft forever preferred_lft forever
-    215: vlan10: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
-        link/ether 02:00:c6:33:64:fe brd ff:ff:ff:ff:ff:ff
+    7: vlan10@if8: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+        link/ether ce:21:b1:f4:b8:c5 brd ff:ff:ff:ff:ff:ff link-netnsid 0
         inet 198.51.100.254/24 brd 198.51.100.255 scope global vlan10
            valid_lft forever preferred_lft forever
         inet6 2001:db8:1998::fe/120 scope global 
            valid_lft forever preferred_lft forever
-        inet6 fe80::c6ff:fe33:64fe/64 scope link 
+        inet6 fe80::cc21:b1ff:fef4:b8c5/64 scope link 
            valid_lft forever preferred_lft forever
 
 Let's verify if we have proper outgoing network connectivity!
