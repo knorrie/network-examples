@@ -140,7 +140,11 @@ In the config file, instead of...
     lxc.network.script.up = /etc/lxc/lxc-openvswitch
     lxc.network.script.down = /etc/lxc/lxc-openvswitch
 
-...oh, and by the way, the lxc network script referenced is a really simple script to integrate lxc with openvswitch, which simply attaches an interface in the container to a vlan inside openvswitch based on the number after the dot. It has to be present on the host system, not in the container:
+...and also, if you don't have apparmor stuff set up (apparently I haven't), then you can disable all of that by changing the following option to 'unconfined'. It took me a bit to figure this out, based on only a "No such file or directory" error I got:
+
+    lxc.apparmor.profile = unconfined
+
+Oh, and by the way, the lxc network script referenced is a really simple script to integrate lxc with openvswitch, which simply attaches an interface in the container to a vlan inside openvswitch based on the number after the dot. It has to be present on the host system, not in the container:
 
     lxcbird:/etc/lxc 0-# cat lxc-openvswitch
     #!/bin/sh
