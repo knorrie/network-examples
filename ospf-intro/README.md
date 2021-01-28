@@ -385,4 +385,11 @@ Another thing you can play with is rolling out IPv6 on this little network that 
 
 After completing this tutorial, I also encourage you to start reading the other "An Introduction to OSPF" like pages on the internet, since they should be a lot easier to understand while having seen it work for real! Have fun.
 
+# Cleaning up
+
+Before starting the next tutorial, we need to get rid of all our container stuff, since the names starting with R and H will be reused. Make sure you preserve the configs that you wrote if you want to have a look at them later. Then, we can stop and remove everything:
+
+    for router in 1 2 5 6; do lxc-stop -n R$router; lxc-destroy -n R$router; sleep 2; done
+    for host in 12 10 8 5; do lxc-stop -n H$host; lxc-destroy -n H$host; sleep 2; done
+
 Next: [An introduction to BGP](/bgp-intro/README.md)

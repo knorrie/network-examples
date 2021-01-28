@@ -536,3 +536,10 @@ It might have occurred to you that the iBGP BIRD configuration specifies the loc
  * Look around on the internet and read other blogs and tutorials about OSPF and BGP and see if they're much more easy to understand having a frame of reference which was set by following this tutorial.
 
 In the next tutorial, [BGP Part II](/bgp-contd/README.md), I'll show more interesting topologies of different networks connecting together using BGP than just two networks with one eBGP connection. By doing so, we'll quickly discover and understand how the actual huge Internet is organized.
+
+# Cleaning up
+
+Before starting the next tutorial, we need to get rid of all our container stuff, since the names starting with R and H will be reused. Make sure you preserve the configs that you wrote if you want to have a look at them later. Then, we can stop and remove everything:
+
+    for router in 0 1 3 10 11 12; do lxc-stop -n R$router; lxc-destroy -n R$router; sleep 2; done
+    for host in 6 7 19 34; do lxc-stop -n H$host; lxc-destroy -n H$host; sleep 2; done

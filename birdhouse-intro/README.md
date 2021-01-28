@@ -111,4 +111,19 @@ To finish this tutorial:
 
 That's basically it. As you can see, when you get the hang of this, it's instantly also getting extremely boring to do the configuration every time. For later tutorials, I'll make sure all files that make up the starting point of the configuration are available to simply copy into the newly cloned containers.
 
+# Cleanup!
+
+Oh, wait, before we move on, let's introduce the cleaning up step...
+
+When working through the next pages of the tutorial, we'll often create a bunch of containers by cloning the birdbase container. Before starting the next tutorial, you want to clean them up, since container names might be reused.
+
+For now, we can stop and remove them like this:
+
+    lxcbird:/var/lib/lxc 0-# lxc-stop -n sparrow
+    lxcbird:/var/lib/lxc 0-# lxc-stop -n weaver
+    lxcbird:/var/lib/lxc 0-# lxc-destroy -n sparrow
+    lxcbird:/var/lib/lxc 0-# lxc-destroy -n weaver
+
+(N.B. With Debian Buster and btrfs, I currently get a lot of error like `lxc-destroy: sparrow: storage/btrfs.c: get_btrfs_subvol_path: 103 Failed to append name - rootfs�x`, it seems it actually in the end can remove everything, so I'm ignoring those for now.)
+
 Next up: [Meanwhile at the Birdhouse Factory...](/birdhouse-vlans-vpn/README.md)

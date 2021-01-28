@@ -350,3 +350,9 @@ Using other resources on the internet you should be able to find out what all of
 Within a single AS, it's really important to have a single policy, so that all routers are on the same page about where to send traffic. You cannot have two border routers, which independently from each other determine that the other one should be used as exit point to a specific external peer. They would pingpong all traffic between them until the IP packet TTL expires and then drop the traffic, resulting in a big black hole and a bunch of overloaded internal connections. So, yes, this can get quite complex quickly if you start to make customizations.
 
 Remember that we started this tutorial with an example network in which traffic between `AS65000` and `AS65010` was already using the two paths between them in an asymmetric way. Because the setup of both networks is so similar and mirrored, the fact that traffic back and forth flows asymmetrically is actually thanks to the last rule: "Prefer the route with the lowest value of router ID of the advertising router.". After initially setting up the example, I had to swap `R10` and `R11` again to get this behaviour. :-)
+
+# Cleaning up
+
+Make sure you preserve the configs that you wrote if you want to have a look at them later. Then, we can stop and remove everything:
+
+    for router in 0 1 2 10 11 12 20; do lxc-stop -n R$router; lxc-destroy -n R$router; sleep 2; done
