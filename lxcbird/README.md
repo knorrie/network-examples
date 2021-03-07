@@ -144,7 +144,7 @@ In the config file, instead of...
 
     lxc.apparmor.profile = unconfined
 
-Oh, and by the way, the lxc network script referenced is a really simple script to integrate lxc with openvswitch, which simply attaches an interface in the container to a vlan inside openvswitch based on the number after the dot. It has to be present on the host system, not in the container:
+Oh, and by the way, the lxc network script referenced is a really simple script to integrate lxc with openvswitch, which simply attaches an interface in the container to a vlan inside openvswitch based on the number after the dot. It has to be present on the host system, not in the container, and it needs the executable permission bit set.
 
     lxcbird:/etc/lxc 0-# cat lxc-openvswitch
     #!/bin/sh
@@ -162,6 +162,10 @@ Oh, and by the way, the lxc network script referenced is a really simple script 
     else
         ovs-vsctl del-port ovs0 $5
     fi
+
+    lxcbird:/etc/lxc 0-# chmod +x lxc-openvswitch
+    lxcbird:/etc/lxc 0-# ls -l lxc-openvswitch
+    -rwxr-xr-x 1 root root 314 Apr  6  2015 lxc-openvswitch
 
 Instead of setting the container IP address and gateway in the lxc configuration file, I prefer using network/interfaces inside the container, because we'll be using that for more complex networking anyway in the tutorials:
 
