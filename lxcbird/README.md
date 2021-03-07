@@ -123,6 +123,8 @@ Here's an example to create a first container, which we'll configure a bit and u
 
     lxcbird:/var/lib/lxc 0-# MIRROR=http://ftp.nl.debian.org/debian lxc-create -t debian -B btrfs -n birdbase -- -r buster
 
+Note that I'm using a btrfs file system on my computer, and lxc is using btrfs snapshots to clone the containers. When using a different storage backend for lxc, e.g. ext4 and overlayfs, some of the details of placement of files may vary. It is left as exercise for the reader to deal with these small differences.
+
 ### Configure the network and openvswitch up/down script
 
 In `birdbase/config`, lxc-create has put some basic configuration. The networking configuration has to be set up now, so we can test our connectivity and install some extra software. To be able to do so, I'm going to configure it with an IPv4 and IPv6 address in the range of vlan10, and point my default gateway to the lxc host system.
