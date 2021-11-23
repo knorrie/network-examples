@@ -52,6 +52,6 @@ All test setups used in the tutorials are built using Linux, LXC and OpenvSwitch
 ## Feedback, getting help
 
  * I'm very interested in feedback on the amount of time it takes to work through the tutorials. Since I wrote them, I cannot predict those, and it may provide useful information about reordering the pages if they're too long.
- * If you like IRC, try the `#bird` channel on Freenode. There's a bunch of friendly BIRD users in there that might help you with the BIRD configuration if you have questions.
+ * If you like IRC, try the `#bird` channel on Libera Chat. There's a bunch of friendly BIRD users in there that might help you with the BIRD configuration if you have questions.
 
 Hans van Kranenburg, `hans@knorrie.org`
